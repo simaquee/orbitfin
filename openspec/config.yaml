@@ -1,0 +1,53 @@
+schema: spec-driven
+
+context: |
+  Language: pt-BR
+  All artifacts must be written in pt-BR.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Projeto: OrbitFin — organizador financeiro pessoal (identidade "Grupo Marte").
+  Reconstrução do projeto de referência github.com/lucianocsjunior13-gif/OrbitFin,
+  agora estruturado com OpenSpec real (specs por capacidade + changes validadas).
+
+  Stack:
+  - Frontend: Python 3.12+, Streamlit, Plotly, pandas, requests.
+  - Backend: Xano (BaaS, PostgreSQL gerenciado, auth JWT), versionado em
+    XanoScript (.xs) na pasta src/xano/ via Xano CLI (@xano/cli). Não existe
+    backend próprio (Flask/FastAPI): o Xano É o backend.
+  - Testes: pytest. O cliente HTTP do Xano deve ser testável com respostas simuladas.
+
+  Arquitetura e convenções:
+  - Todo o código-fonte fica em src/: src/app.py = entrypoint; src/views/ = telas;
+    src/components/ = tema, sidebar, header, gráficos; src/services/ = cliente da
+    API Xano e regras de cálculo; src/xano/ = backend. Testes em tests/ (raiz).
+  - Imports sem prefixo "src." (pythonpath configurado no pyproject.toml);
+    rodar com `streamlit run src/app.py` a partir da raiz.
+  - Regras de cálculo ficam em funções puras em src/services/, nunca dentro das views.
+  - Configuração e URLs do Xano apenas em .streamlit/secrets.toml (gitignored);
+    versionar somente secrets.toml.example. Nunca commitar tokens.
+  - Toda rota de dados exige Authorization: Bearer <token> e isola dados por user_id.
+  - Valores monetários em BRL, formato pt-BR (R$ 1.234,56); datas DD/MM/AAAA na UI.
+
+  Identidade visual (obrigatória):
+  - Terracota #E05638 (primária, botões, despesas, alertas, insights),
+    Azul Marinho #1A2238 (navegação, textos, receitas),
+    Cinza Claro #F4F6F8 (fundo) + Branco #FFFFFF (cards).
+  - Ícones Flaticon UIcons (fi-rr-* / fi-br-*), sem emojis coloridos.
+
+  Segurança operacional:
+  - Agentes podem rodar `xano workspace push --dry-run`; push real,
+    --force, --delete ou --truncate exigem confirmação humana.
+
+rules:
+  proposal:
+    - Sempre declarar o que está fora do escopo.
+  specs:
+    - Cenários devem usar valores concretos (R$, datas, percentuais) sempre que possível.
+  tasks:
+    - Separar tarefas de backend (src/xano/) e frontend (Streamlit) em grupos distintos.
+    - Tarefas que exigem a conta Xano do usuário devem ser marcadas com "(requer Xano)".
+
+operations:
+  apply:
+    guidance:
+      - Não executar push real no Xano sem confirmação explícita do usuário.

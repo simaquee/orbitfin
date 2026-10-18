@@ -1,0 +1,11 @@
+# Segredos (nunca versionar)
+.streamlit/secrets.toml
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Xano CLI
+.xano/

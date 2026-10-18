@@ -1,0 +1,10 @@
+[project]
+name = "orbitfin"
+version = "0.1.0"
+description = "Organizador financeiro pessoal (Streamlit + Xano), estruturado com OpenSpec"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+# Código-fonte em src/ (imports sem prefixo: "from services.api import ...")
+pythonpath = ["src", "."]
+testpaths = ["tests"]
