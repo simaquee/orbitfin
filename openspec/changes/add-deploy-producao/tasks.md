@@ -8,8 +8,8 @@
 
 ## 2. Repositório (requer GitHub)
 
-- [ ] 2.1 Inicializar o Git, conferir que `.streamlit/secrets.toml` e `.venv/` estão ignorados (`git check-ignore`) e fazer o commit inicial
-- [ ] 2.2 Criar o repositório privado `orbitfin` no GitHub e enviar a branch `main`, e verificar que o repositório remoto não contém `secrets.toml`
+- [x] 2.1 Inicializar o Git, conferir que `.streamlit/secrets.toml` e `.venv/` estão ignorados (`git check-ignore`) e fazer o commit inicial
+- [x] 2.2 Criar o repositório privado `orbitfin` no GitHub e enviar a branch `main`, e verificar que o repositório remoto não contém `secrets.toml`
 
 ## 3. Frontend (requer Streamlit Cloud)
 
