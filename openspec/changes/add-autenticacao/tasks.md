@@ -4,7 +4,7 @@
 
 - [x] 1.1 Definir `src/xano/table/user.xs` (name, email único com trim/lower, password com min:8|minAlpha:1|minDigit:1, created_at) e verificar com `xano workspace push -d ./src/xano --dry-run` sem erros
 - [x] 1.2 Criar `src/xano/api/orbitfin/register_POST.xs` e `login_POST.xs` com o contrato `{access_token, user_id, name, email}`, expiração de 86400 s e mensagens em português, e verificar com o dry-run
-- [ ] 1.3 (requer Xano) Publicar com `xano workspace push -d ./src/xano` após confirmação do usuário, e verificar no Run do Xano: cadastro, cadastro duplicado, login correto e login com senha errada
+- [x] 1.3 (requer Xano) Publicar com `xano workspace push -d ./src/xano` após confirmação do usuário, e verificar no Run do Xano: cadastro, cadastro duplicado, login correto e login com senha errada
 
 ## 2. Frontend
 

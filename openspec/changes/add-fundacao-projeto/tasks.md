@@ -7,8 +7,8 @@
 
 ## 2. Backend Xano
 
-- [ ] 2.1 (requer Xano) Instalar o Xano CLI, autenticar (`xano auth`) e criar o API group `orbitfin`, e verificar com `xano profile me`
-- [ ] 2.2 (requer Xano) Rodar `xano workspace pull -d ./src/xano` e verificar que a pasta `src/xano/` contém a tabela `user` padrão
+- [x] 2.1 (requer Xano) Instalar o Xano CLI, autenticar (`xano auth`) e criar o API group `orbitfin`, e verificar com `xano profile me`
+- [x] 2.2 (requer Xano) Rodar `xano workspace pull -d ./src/xano` e verificar que a pasta `src/xano/` contém a tabela `user` padrão
 
 ## 3. Serviços
 

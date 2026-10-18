@@ -4,7 +4,7 @@
 
 - [x] 1.1 Definir `src/xano/table/transacao.xs` conforme o design e verificar com `xano workspace push -d ./src/xano --dry-run`
 - [x] 1.2 Criar `transacoes_GET.xs`, `transacoes_POST.xs`, `transacoes/transacao_id_PUT.xs` e `transacoes/transacao_id_DELETE.xs` com validação de tipo, status, valor e categoria e isolamento por usuário, e verificar com o dry-run
-- [ ] 1.3 (requer Xano) Publicar após confirmação do usuário e verificar no Run do Xano: criar, listar, editar, excluir, valor zero, categoria incompatível e acesso a transação de outro usuário
+- [x] 1.3 (requer Xano) Publicar após confirmação do usuário e verificar no Run do Xano: criar, listar, editar, excluir, valor zero, categoria incompatível e acesso a transação de outro usuário
 
 ## 2. Serviços
 

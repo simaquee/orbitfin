@@ -4,7 +4,7 @@
 
 - [x] 1.1 Definir `src/xano/table/budget.xs` com índice único (user_id, categoria) e verificar com `xano workspace push -d ./src/xano --dry-run`
 - [x] 1.2 Criar `budgets_GET.xs` (seed preguiçoso dos 7 padrões, gasto do período via `inicio`/`fim`) e `budgets/budget_id_PUT.xs` (limite > 0, isolamento), e verificar com o dry-run
-- [ ] 1.3 (requer Xano) Publicar após confirmação do usuário e verificar no Run do Xano os cenários "Primeiro acesso", "Gasto do mês", "Limite inválido" e "Orçamento de outro usuário"
+- [x] 1.3 (requer Xano) Publicar após confirmação do usuário e verificar no Run do Xano os cenários "Primeiro acesso", "Gasto do mês", "Limite inválido" e "Orçamento de outro usuário"
 
 ## 2. Serviços
 
