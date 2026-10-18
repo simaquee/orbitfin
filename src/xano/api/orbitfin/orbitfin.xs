@@ -1,4 +1,5 @@
 // API do OrbitFin: autenticação, transações e orçamentos
+// canonical único na instância compartilhada x8ki-letl-twmt ("orbitfin" já pertence ao projeto original)
 api_group OrbitFin {
-  canonical = "orbitfin"
+  canonical = "orbitfingm"
 }

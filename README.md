@@ -48,7 +48,8 @@ orbitfin/
    xano workspace push -d ./src/xano --dry-run
    xano workspace push -d ./src/xano
    ```
-4. No Xano, abra **API > OrbitFin** e copie a **Base URL** (algo como `https://xxxx.xano.io/api:orbitfin`).
+4. No Xano, abra **API > OrbitFin** e copie a **Base URL**: `https://x8ki-letl-twmt.n7.xano.io/api:orbitfingm`.
+   O grupo usa o canonical `orbitfingm` porque a instância gratuita é compartilhada e `api:orbitfin` já pertence ao projeto original.
 
 > Faça `git commit` antes de publicar, e evite `--force`, `--delete` ou `--truncate` sem revisar.
 

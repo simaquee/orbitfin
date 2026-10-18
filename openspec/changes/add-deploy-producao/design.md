@@ -18,7 +18,9 @@ Ver proposal.md. O app lê a URL do Xano de `st.secrets["xano"]["base_url"]` e o
   - repositório: `<usuario>/orbitfin` (privado), branch `main`;
   - arquivo principal: `src/app.py`;
   - Python 3.12;
-  - secrets: `[xano] base_url = "https://<instancia>.xano.io/api:orbitfin"`.
+  - secrets: `[xano] base_url = "https://x8ki-letl-twmt.n7.xano.io/api:orbitfingm"`.
+- **Canonical `orbitfingm`, não `orbitfin`.** A instância gratuita `x8ki-letl-twmt` é compartilhada, e o endereço `api:orbitfin` já pertence ao backend do projeto original. Apontar o app para ele enviaria dados de usuários a um backend de terceiros. O canonical precisa ser único na instância.
+- **Verificar o workspace antes de testar o backend.** Um `xano workspace pull` precisa listar as tabelas e endpoints publicados antes de qualquer teste com dados.
 - **Repositório privado.** O código não tem segredos, mas não há motivo para expô-lo; o Streamlit Cloud acessa repositórios privados com autorização do GitHub.
 - **Ordem: backend antes do frontend.** Sem o Xano publicado, o site no ar só mostraria a mensagem de configuração.
 - **Push no Xano só após o dry-run revisado** e confirmação explícita do usuário (regra do `config.yaml` e do próprio Xano CLI).
