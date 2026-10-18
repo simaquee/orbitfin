@@ -37,4 +37,5 @@ query transacoes verb=POST {
   }
 
   response = $transacao
+  guid = "NOKFZQOI9eur526bF6VjIO9H10w"
 }

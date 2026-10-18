@@ -54,4 +54,5 @@ function "OrbitFin/validar_transacao" {
   }
 
   response = null
+  guid = "_RfrKsAwjvbPJuKIzM-VE40YvY8"
 }

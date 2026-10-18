@@ -14,7 +14,9 @@ query register verb=POST {
       error = "Preencha todos os campos."
     }
 
-    precondition (($input.password|strlen) >= 8 && ($input.password|regex_matches:"/[A-Za-z]/") && ($input.password|regex_matches:"/[0-9]/")) {
+    // Letra e número são exigidos pelo filtro do campo password da tabela user
+    // (min:8|minAlpha:1|minDigit:1); o cliente valida antes com a mensagem em português.
+    precondition (($input.password|strlen) >= 8) {
       error_type = "inputerror"
       error = "A senha deve ter no mínimo 8 caracteres, com pelo menos 1 letra e 1 número."
     }
@@ -52,4 +54,5 @@ query register verb=POST {
     name        : $user.name
     email       : $user.email
   }
+  guid = "bVorz5168Cjsb3ttFiOoo5Oh2wQ"
 }

@@ -35,4 +35,5 @@ query "budgets/{budget_id}" verb=PUT {
   }
 
   response = $budget
+  guid = "D-cnIHTBiMkEl5dHiqZiG4xtPPc"
 }

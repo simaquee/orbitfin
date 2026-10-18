@@ -49,4 +49,5 @@ query "transacoes/{transacao_id}" verb=PUT {
   }
 
   response = $transacao
+  guid = "pL4Rw85WDrMvuSo4UmJx4ef1E1g"
 }

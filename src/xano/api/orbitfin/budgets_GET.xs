@@ -106,4 +106,5 @@ query budgets verb=GET {
   }
 
   response = $resultado
+  guid = "MXcVbwtkE1GHev8OmIXRQWBIiIE"
 }

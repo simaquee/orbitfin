@@ -25,4 +25,5 @@ query "transacoes/{transacao_id}" verb=DELETE {
   }
 
   response = {success: true}
+  guid = "3aWPPRoqpZyhGr6yXFHuoO1Of1E"
 }

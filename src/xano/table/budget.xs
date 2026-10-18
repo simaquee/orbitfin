@@ -23,4 +23,5 @@ table budget {
       field: [{name: "user_id", op: "asc"}, {name: "categoria", op: "asc"}]
     }
   ]
+  guid = "iwbjLOnFv_B-tkn2pM2SDkaTDAk"
 }

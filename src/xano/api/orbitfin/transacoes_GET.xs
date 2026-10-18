@@ -15,4 +15,5 @@ query transacoes verb=GET {
   }
 
   response = $transacoes
+  guid = "LzmzEFJM7GGc1Gdb0iT_15oAVp8"
 }

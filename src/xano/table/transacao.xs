@@ -30,4 +30,5 @@ table transacao {
     {type: "btree", field: [{name: "user_id", op: "asc"}]}
     {type: "btree", field: [{name: "data", op: "desc"}]}
   ]
+  guid = "P4IqyyeMNFXHj2wbzby8ohTkk4w"
 }

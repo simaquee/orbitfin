@@ -15,4 +15,5 @@ table user {
     {type: "btree", field: [{name: "created_at", op: "desc"}]}
     {type: "btree|unique", field: [{name: "email", op: "asc"}]}
   ]
+  guid = "dAP-YbgShWOf-1UU9Dyq5E3Amsc"
 }

@@ -44,4 +44,5 @@ query login verb=POST {
     name        : $user.name
     email       : $user.email
   }
+  guid = "EEvBZRga2DbTAX4Nv3c_J3M3mSY"
 }
