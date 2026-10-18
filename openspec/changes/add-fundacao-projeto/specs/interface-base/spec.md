@@ -7,22 +7,30 @@ Define a casca visual e os comportamentos transversais do OrbitFin (identidade v
 ## ADDED Requirements
 
 ### Requirement: Paleta oficial e ícones
-A interface SHALL usar exclusivamente as cores Terracota `#E05638`, Azul Marinho `#1A2238`, Cinza Claro `#F4F6F8` e Branco `#FFFFFF`, e ícones Flaticon UIcons no lugar de emojis.
+A interface SHALL usar exclusivamente as cores Terracota `#E05638`, Azul Marinho `#1A2238`, Cinza Claro `#F4F6F8` e Branco `#FFFFFF`, e ícones Flaticon UIcons no lugar de emojis. Texto pequeno em terracota e fundos de botão com texto branco MUST usar o tom derivado `#C54C31` (mesmo matiz) para atingir contraste WCAG AA (4,5:1).
 
 #### Scenario: Fundo e botão primário
 - **WHEN** qualquer tela é exibida
-- **THEN** o fundo da aplicação é `#F4F6F8`, os cards são `#FFFFFF` e os botões primários são `#E05638`
+- **THEN** o fundo da aplicação é `#F4F6F8`, os cards são `#FFFFFF` e os botões primários têm fundo `#C54C31` com texto branco
 
 #### Scenario: Cores de receita e despesa
 - **WHEN** um valor de receita ou despesa é exibido em lista ou gráfico
-- **THEN** receitas usam `#1A2238` e despesas usam `#E05638`
+- **THEN** receitas usam `#1A2238`; despesas usam `#E05638` em gráficos e ícones e `#C54C31` em valores de texto
+
+#### Scenario: Contraste de textos
+- **WHEN** qualquer texto de interface é exibido sobre branco ou sobre o fundo `#F4F6F8`
+- **THEN** o contraste é de no mínimo 4,5:1
 
 ### Requirement: Navegação lateral
-Para usuários autenticados, o sistema SHALL exibir uma barra lateral com a marca "OrbitFin" e os itens, nesta ordem: Dashboard, Transações, Orçamento, Metas e Relatórios, destacando o item da página atual.
+Para usuários autenticados, o sistema SHALL exibir uma barra lateral com a marca "OrbitFin" e os itens, nesta ordem: Dashboard, Transações, Orçamento, Metas e Relatórios, destacando o item da página atual. Em telas com até 768px de largura, a barra lateral MUST dar lugar a uma navegação no topo com os mesmos itens, na mesma ordem, e o botão "Sair".
 
 #### Scenario: Troca de página
 - **WHEN** o usuário clica em "Transações" na barra lateral
 - **THEN** a página de transações é exibida e o item "Transações" fica destacado
+
+#### Scenario: Navegação no celular
+- **WHEN** o usuário acessa o app numa tela de 390px de largura
+- **THEN** a barra lateral não cobre o conteúdo e os itens de navegação aparecem no topo da página, com o item atual destacado
 
 #### Scenario: Página inicial
 - **WHEN** o usuário acaba de entrar no sistema

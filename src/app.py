@@ -2,7 +2,7 @@
 import streamlit as st
 
 from components import sessao
-from components.sidebar import barra_lateral
+from components.sidebar import barra_lateral, navegacao_movel
 from components.theme import aplicar_tema, configurar_pagina
 from components.ui import html
 from services.api import MSG_CONFIG, MSG_SESSAO, SessaoExpirada, base_url_configurada
@@ -33,6 +33,7 @@ try:
     else:
         aplicar_tema()
         barra_lateral()
+        navegacao_movel()
         PAGINAS.get(st.session_state.pagina, dashboard.render)()
 except SessaoExpirada:
     expirou = True

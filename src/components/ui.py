@@ -148,7 +148,7 @@ _ORBITAS_SVG = (
 
 
 def painel_marca(titulo: str, texto: str) -> str:
-    return (f'<div class="of-painel">{_ORBITAS_SVG}<div class="kicker">OrbitFin · Grupo Marte</div>'
+    return (f'<div class="of-painel">{_ORBITAS_SVG}'
             f"<h2>{escape(titulo)}</h2><p>{escape(texto)}</p></div>")
 
 

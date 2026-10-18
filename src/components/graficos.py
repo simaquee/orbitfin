@@ -6,10 +6,11 @@ from typing import Sequence
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.theme import FONTE as FONTE_MARCA
 from components.theme import MARINHO, TERRACOTA, rgba
 from services.formatacao import moeda
 
-FONTE = "Plus Jakarta Sans, system-ui, sans-serif"
+FONTE = f"{FONTE_MARCA}, system-ui, sans-serif"
 CORES_ROSCA = [TERRACOTA, MARINHO, rgba(TERRACOTA, .6), rgba(MARINHO, .6), rgba(TERRACOTA, .32),
                rgba(MARINHO, .32), rgba(MARINHO, .14)]
 
@@ -35,10 +36,10 @@ def mostrar(fig: go.Figure) -> None:
     st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
 
-def _linha(nome: str, x, y, cor: str, suave: bool = True, **extra) -> go.Scatter:
-    forma = dict(shape="spline", smoothing=0.6) if suave else dict(shape="linear")
+def _linha(nome: str, x, y, cor: str, **extra) -> go.Scatter:
+    # Linhas retas: a suavização (spline) desenha valores que não existem, como mergulhos abaixo de zero.
     return go.Scatter(
-        name=nome, x=list(x), y=list(y), mode="lines", line=dict(color=cor, width=3, **forma),
+        name=nome, x=list(x), y=list(y), mode="lines", line=dict(color=cor, width=3, shape="linear"),
         customdata=[moeda(v) for v in y], hovertemplate=f"{nome}: %{{customdata}}<extra></extra>",
         **extra,
     )
@@ -46,12 +47,10 @@ def _linha(nome: str, x, y, cor: str, suave: bool = True, **extra) -> go.Scatter
 
 def receitas_despesas(x: Sequence[str], receitas: Sequence[float], despesas: Sequence[float],
                       saldo: Sequence[float] | None = None, altura: int = 300) -> go.Figure:
-    # Curvas suaves só com poucos pontos; em séries diárias a suavização inventa picos.
-    suave = len(x) <= 12
     fig = go.Figure()
-    fig.add_trace(_linha("Receitas", x, receitas, MARINHO, suave, fill="tozeroy",
+    fig.add_trace(_linha("Receitas", x, receitas, MARINHO, fill="tozeroy",
                          fillcolor=rgba(MARINHO, .06)))
-    fig.add_trace(_linha("Despesas", x, despesas, TERRACOTA, suave, fill="tozeroy",
+    fig.add_trace(_linha("Despesas", x, despesas, TERRACOTA, fill="tozeroy",
                          fillcolor=rgba(TERRACOTA, .06)))
     if saldo is not None:
         fig.add_trace(go.Scatter(
@@ -63,15 +62,17 @@ def receitas_despesas(x: Sequence[str], receitas: Sequence[float], despesas: Seq
 
 
 def rosca(rotulos: Sequence[str], valores: Sequence[float], altura: int = 260) -> go.Figure:
+    # Percentual na legenda (texto marinho legível), não em branco dentro de fatias claras ou terracota.
+    total = sum(valores) or 1
+    legendas = [f"{r} · {v / total:.0%}" for r, v in zip(rotulos, valores)]
     fig = go.Figure(go.Pie(
-        labels=list(rotulos), values=list(valores), hole=0.62, sort=False,
+        labels=legendas, values=list(valores), hole=0.62, sort=False, textinfo="none",
         marker=dict(colors=CORES_ROSCA[:len(valores)], line=dict(color="#fff", width=2)),
-        textinfo="percent", texttemplate="%{percent:.0%}", textfont=dict(color="#fff", size=11),
         customdata=[moeda(v) for v in valores],
-        hovertemplate="%{label}: %{customdata} (%{percent:.0%})<extra></extra>",
+        hovertemplate="%{label}: %{customdata}<extra></extra>",
     ))
     fig.add_annotation(text=f"<b>{moeda(sum(valores))}</b><br><span style='font-size:11px'>total</span>",
-                       showarrow=False, font=dict(size=14, color=MARINHO, family=FONTE))
+                       showarrow=False, font=dict(size=12, color=MARINHO, family=FONTE))
     fig = _layout(fig, altura)
     fig.update_layout(legend=dict(orientation="v", y=0.5, yanchor="middle", x=1.02, xanchor="left"))
     return fig

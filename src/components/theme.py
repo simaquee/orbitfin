@@ -4,12 +4,16 @@ from __future__ import annotations
 import streamlit as st
 
 TERRACOTA = "#E05638"
+# Tom derivado (mesmo matiz, 12% mais escuro) para texto pequeno e fundo de botões:
+# #E05638 dá 3,8:1 sobre branco; #C54C31 dá 4,7:1 (WCAG AA). Ver PRODUCT.md > Brand Commitments.
+TERRACOTA_TEXTO = "#C54C31"
 MARINHO = "#1A2238"
 FUNDO = "#F4F6F8"
 BRANCO = "#FFFFFF"
 
 UICONS_CSS = "https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
-FONTE_CSS = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+FONTE = "Schibsted Grotesk"
+FONTE_CSS = "https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
 
 
 def rgba(hex_cor: str, alfa: float) -> str:
@@ -18,8 +22,9 @@ def rgba(hex_cor: str, alfa: float) -> str:
 
 
 def configurar_pagina() -> None:
+    # "auto": aberta no desktop, recolhida no celular (onde a navegação vai para o topo)
     st.set_page_config(page_title="OrbitFin", page_icon="◆", layout="wide",
-                       initial_sidebar_state="expanded")
+                       initial_sidebar_state="auto")
 
 
 _CSS_BASE = f"""
@@ -31,9 +36,11 @@ _CSS_BASE = f"""
   --terracota-10: {rgba(TERRACOTA, .10)};
   --terracota-25: {rgba(TERRACOTA, .25)};
   --terracota-60: {rgba(TERRACOTA, .60)};
+  --terracota-texto: {TERRACOTA_TEXTO};
+  --terracota-texto-hover: #A9402A;
   --marinho: {MARINHO};
   --marinho-70: {rgba(MARINHO, .70)};
-  --marinho-50: {rgba(MARINHO, .50)};
+  --texto-suave: {rgba(MARINHO, .65)};  /* 5,0:1 sobre branco; 4,85:1 sobre o fundo */
   --marinho-10: {rgba(MARINHO, .08)};
   --marinho-06: {rgba(MARINHO, .06)};
   --fundo: {FUNDO};
@@ -43,23 +50,29 @@ _CSS_BASE = f"""
 }}
 
 html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif !important;
+  font-family: '{FONTE}', system-ui, -apple-system, 'Segoe UI', sans-serif !important;
 }}
-.stApp {{ background: var(--fundo); color: var(--marinho); }}
+.stApp {{ background: var(--fundo); color: var(--marinho); caret-color: var(--terracota-texto);
+  scrollbar-color: rgba(26,34,56,.22) transparent; }}
+.stApp ::selection {{ background: var(--terracota-25); color: var(--marinho); }}
+.stApp :focus-visible {{ outline: 2px solid var(--terracota-texto); outline-offset: 2px; }}
 [data-testid="stHeader"] {{ background: transparent; }}
 [data-testid="stToolbar"], [data-testid="stDecoration"] {{ display: none; }}
 [data-testid="stMainBlockContainer"] {{ padding: 2.2rem 2.6rem 4rem; max-width: 1280px; }}
 .fi {{ display: inline-flex; line-height: 1; }}
+@media (max-width: 768px) {{
+  [data-testid="stMainBlockContainer"] {{ padding: 1rem 1rem 3rem; }}
+}}
 
 /* ---------- Botões ---------- */
 .stApp button[kind="primary"], .stApp button[data-testid="stBaseButton-primary"],
 .stApp button[data-testid="stBaseButton-primaryFormSubmit"] {{
-  background: var(--terracota); border: 1px solid var(--terracota); color: #fff;
-  border-radius: 10px; font-weight: 600; box-shadow: 0 6px 16px var(--terracota-25);
+  background: var(--terracota-texto); border: 1px solid var(--terracota-texto); color: #fff;
+  border-radius: 10px; font-weight: 600; box-shadow: 0 1px 2px rgba(26,34,56,.12);
 }}
 .stApp button[kind="primary"]:hover, .stApp button[data-testid="stBaseButton-primary"]:hover,
 .stApp button[data-testid="stBaseButton-primaryFormSubmit"]:hover {{
-  background: #c94a2f; border-color: #c94a2f; color: #fff;
+  background: var(--terracota-texto-hover); border-color: var(--terracota-texto-hover); color: #fff;
 }}
 .stApp button[data-testid="stBaseButton-secondary"],
 .stApp button[data-testid="stBaseButton-secondaryFormSubmit"] {{
@@ -67,9 +80,10 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
   border-radius: 10px; font-weight: 600;
 }}
 .stApp button[data-testid="stBaseButton-secondary"]:hover {{
-  border-color: var(--terracota); color: var(--terracota);
+  border-color: var(--terracota-texto); color: var(--terracota-texto);
 }}
-.stApp button[data-testid="stBaseButton-tertiary"] {{ color: var(--terracota); font-weight: 600; }}
+.stApp button[data-testid="stBaseButton-tertiary"],
+.stApp button[data-testid="stBaseButton-tertiary"] p {{ color: var(--terracota-texto); font-weight: 600; }}
 
 /* ---------- Campos ---------- */
 .stApp [data-baseweb="input"], .stApp [data-baseweb="select"] > div, .stApp [data-baseweb="textarea"] {{
@@ -91,12 +105,12 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
 }}
 .of-card-titulo {{ display: flex; align-items: center; justify-content: space-between;
   font-weight: 700; font-size: 1rem; color: var(--marinho); margin-bottom: .35rem; }}
-.of-card-titulo small {{ font-weight: 500; color: var(--marinho-50); font-size: .8rem; }}
+.of-card-titulo small {{ font-weight: 500; color: var(--texto-suave); font-size: .8rem; }}
 
 /* ---------- Cabeçalho ---------- */
 .of-header {{ margin: 0 0 1.4rem; }}
 .of-kicker {{ text-transform: uppercase; letter-spacing: .08em; font-size: .72rem;
-  font-weight: 700; color: var(--terracota); }}
+  font-weight: 700; color: var(--terracota-texto-hover); }}
 .of-titulo {{ font-size: 1.85rem; font-weight: 800; color: var(--marinho);
   letter-spacing: -.02em; line-height: 1.15; margin-top: .15rem; }}
 .of-subtitulo {{ color: var(--marinho-70); font-size: .95rem; margin-top: .3rem; }}
@@ -107,11 +121,11 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
   position: relative; overflow: hidden; }}
 .of-kpi-topo {{ display: flex; justify-content: space-between; align-items: center; }}
 .of-kpi-rotulo {{ text-transform: uppercase; letter-spacing: .06em; font-size: .7rem;
-  font-weight: 700; color: var(--marinho-50); }}
+  font-weight: 700; color: var(--texto-suave); }}
 .of-kpi-valor {{ font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em;
-  font-variant-numeric: tabular-nums; margin-top: .55rem; color: var(--marinho); white-space: nowrap; }}
-.of-kpi-valor.neg {{ color: var(--terracota); }}
-.of-kpi-dica {{ color: var(--marinho-50); font-size: .78rem; margin-top: .2rem; }}
+margin-top: .55rem; color: var(--marinho); white-space: nowrap; }}
+.of-kpi-valor.neg {{ color: var(--terracota-texto); }}
+.of-kpi-dica {{ color: var(--texto-suave); font-size: .78rem; margin-top: .2rem; }}
 .of-kpi.destaque {{ background: var(--marinho); border-color: var(--marinho); }}
 .of-kpi.destaque .of-kpi-rotulo, .of-kpi.destaque .of-kpi-dica {{ color: rgba(255,255,255,.6); }}
 .of-kpi.destaque .of-kpi-valor {{ color: #fff; }}
@@ -128,11 +142,11 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
 
 /* ---------- Selos, barras, listas ---------- */
 .of-chip {{ display: inline-block; padding: .14rem .55rem; border-radius: 999px;
-  font-size: .66rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
   vertical-align: middle; white-space: nowrap; }}
 .of-chip.m {{ background: var(--marinho-10); color: var(--marinho); }}
-.of-chip.t {{ background: var(--terracota-10); color: var(--terracota); }}
-.of-chip.tc {{ background: var(--terracota); color: #fff; }}
+.of-chip.t {{ background: var(--terracota-10); color: var(--terracota-texto-hover); }}
+.of-chip.tc {{ background: var(--terracota-texto); color: #fff; }}
 
 .of-barra {{ height: 8px; border-radius: 999px; background: var(--marinho-10); overflow: hidden; }}
 .of-barra > span {{ display: block; height: 100%; border-radius: 999px; background: var(--marinho); }}
@@ -144,10 +158,10 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
 .of-linha-orc .cab {{ display: flex; justify-content: space-between; align-items: center;
   gap: .6rem; margin-bottom: .45rem; }}
 .of-linha-orc .nome {{ font-weight: 700; font-size: .92rem; }}
-.of-linha-orc .valores {{ font-variant-numeric: tabular-nums; font-size: .82rem;
+.of-linha-orc .valores {{ font-size: .82rem;
   color: var(--marinho-70); white-space: nowrap; }}
-.of-linha-orc .sub {{ font-size: .76rem; color: var(--marinho-50); margin-top: .35rem; }}
-.of-linha-orc .sub.t {{ color: var(--terracota); font-weight: 600; }}
+.of-linha-orc .sub {{ font-size: .76rem; color: var(--texto-suave); margin-top: .35rem; }}
+.of-linha-orc .sub.t {{ color: var(--terracota-texto); font-weight: 600; }}
 
 .of-tx {{ display: flex; align-items: center; gap: .85rem; padding: .7rem 0;
   border-bottom: 1px solid var(--marinho-06); }}
@@ -158,13 +172,13 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
 .of-tx .av.d {{ background: var(--terracota-10); color: var(--terracota); }}
 .of-tx .info {{ flex: 1; min-width: 0; }}
 .of-tx .cat {{ font-weight: 700; font-size: .9rem; display: flex; gap: .45rem; align-items: center; }}
-.of-tx .meta {{ font-size: .78rem; color: var(--marinho-50); white-space: nowrap;
+.of-tx .meta {{ font-size: .78rem; color: var(--texto-suave); white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }}
-.of-tx .val {{ font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }}
+.of-tx .val {{ font-weight: 800; white-space: nowrap; }}
 .of-tx .val.r {{ color: var(--marinho); }}
-.of-tx .val.d {{ color: var(--terracota); }}
+.of-tx .val.d {{ color: var(--terracota-texto); }}
 
-.of-vazio {{ text-align: center; color: var(--marinho-50); padding: 1.6rem .5rem; font-size: .9rem; }}
+.of-vazio {{ text-align: center; color: var(--texto-suave); padding: 1.6rem .5rem; font-size: .9rem; }}
 .of-vazio .fi {{ font-size: 1.6rem; color: var(--marinho-10); display: block; margin-bottom: .5rem; }}
 
 .of-sugestao {{ display: flex; gap: .7rem; align-items: flex-start; padding: .6rem 0;
@@ -185,8 +199,8 @@ section[data-testid="stSidebar"] * { color: #fff; }
 [data-testid="stSidebarUserContent"] { padding: 1.6rem 1rem 1rem; }
 .of-marca { display: flex; align-items: center; gap: .65rem; padding: 0 .35rem 1.6rem; }
 .of-marca-nome { font-weight: 800; font-size: 1.25rem; letter-spacing: -.02em; }
-.of-menu-rotulo { text-transform: uppercase; letter-spacing: .1em; font-size: .66rem;
-  font-weight: 700; color: rgba(255,255,255,.4) !important; padding: 0 .6rem .4rem; }
+.of-menu-rotulo { text-transform: uppercase; letter-spacing: .1em; font-size: .72rem;
+  font-weight: 700; color: rgba(255,255,255,.6) !important; padding: 0 .6rem .4rem; }
 
 .stApp [class*="st-key-nav_"] { position: relative; gap: 0; margin-bottom: .2rem; }
 .stApp [class*="st-key-nav_"] > [data-testid="stElementContainer"]:first-child {
@@ -203,7 +217,7 @@ section[data-testid="stSidebar"] * { color: #fff; }
 .stApp [class*="st-key-nav_"] button p { color: rgba(255,255,255,.72); font-weight: 600; font-size: .92rem; }
 .stApp [class*="st-key-nav_"] button:hover { background: rgba(255,255,255,.06); }
 .stApp [class*="st-key-nav_"][class*="_on"] button {
-  background: rgba(255,255,255,.09); box-shadow: inset 3px 0 0 var(--terracota);
+  background: rgba(255,255,255,.1);
 }
 .stApp [class*="st-key-nav_"][class*="_on"] button p { color: #fff; }
 .stApp [class*="st-key-nav_"][class*="_on"] .fi { color: var(--terracota); }
@@ -212,15 +226,43 @@ section[data-testid="stSidebar"] * { color: #fff; }
 
 .of-usuario { display: flex; align-items: center; gap: .7rem; padding: 1rem .45rem .8rem;
   border-top: 1px solid rgba(255,255,255,.1); margin-top: 1.4rem; }
-.of-avatar { width: 38px; height: 38px; border-radius: 12px; background: var(--terracota);
+.of-avatar { width: 38px; height: 38px; border-radius: 12px; background: var(--terracota-texto);
   display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
 .of-usuario .nome { font-weight: 700; font-size: .88rem; line-height: 1.2; }
-.of-usuario .email { font-size: .74rem; color: rgba(255,255,255,.55) !important;
+.of-usuario .email { font-size: .76rem; color: rgba(255,255,255,.62) !important;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
 .stApp .st-key-sair button { background: transparent; border: 1px solid rgba(255,255,255,.14);
   width: 100%; border-radius: 10px; }
 .stApp .st-key-sair button p { color: rgba(255,255,255,.8); font-weight: 600; }
 .stApp .st-key-sair button:hover { border-color: var(--terracota); background: var(--terracota-10); }
+
+/* ---------- Navegação no celular (substitui a barra lateral abaixo de 768px) ---------- */
+.stApp .st-key-navmovel { display: none; }
+@media (max-width: 768px) {
+  section[data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
+  [data-testid="stExpandSidebarButton"] { display: none !important; }
+  .stApp .st-key-navmovel { display: flex; gap: .55rem; margin: -.25rem 0 1.1rem;
+    padding-bottom: .9rem; border-bottom: 1px solid var(--marinho-10); }
+  .of-marca-movel { display: flex; align-items: center; justify-content: space-between; }
+  .of-marca-movel .marca { display: flex; align-items: center; gap: .5rem; font-weight: 800;
+    font-size: 1.1rem; letter-spacing: -.02em; }
+  .of-marca-movel .usuario { font-size: .8rem; color: var(--texto-suave); }
+  /* marca e "Sair" na mesma linha (o Streamlit empilha colunas no celular) */
+  .stApp .st-key-navmovel [data-testid="stHorizontalBlock"] { flex-wrap: nowrap; gap: .5rem; }
+  .stApp .st-key-navmovel [data-testid="stColumn"] { min-width: 0 !important; width: auto !important; }
+  .stApp .st-key-navmovel [data-testid="stColumn"]:last-child { flex: 0 0 auto; }
+  /* pílulas: botões role="radio" dentro do grupo */
+  .stApp .st-key-navmovel div:has(> button[role="radio"]) {
+    display: flex; flex-direction: row; flex-wrap: wrap; gap: .4rem; }
+  .stApp .st-key-navmovel button[role="radio"] {
+    border-radius: 999px; border: 1px solid rgba(26,34,56,.14); background: var(--card);
+    min-height: 40px; padding: .3rem .9rem; width: auto; }
+  .stApp .st-key-navmovel button[role="radio"] p { color: var(--marinho); font-weight: 600; }
+  .stApp .st-key-navmovel button[role="radio"][aria-checked="true"] {
+    background: var(--marinho); border-color: var(--marinho); }
+  .stApp .st-key-navmovel button[role="radio"][aria-checked="true"] p { color: #fff; }
+  .stApp .st-key-sair_movel button { min-height: 40px; }
+}
 """
 
 _CSS_AUTH = """
@@ -232,7 +274,7 @@ section[data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
   font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; }
 .of-auth-titulo { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
 .of-auth-sub { color: var(--marinho-70); margin: .35rem 0 1.3rem; font-size: .93rem; }
-.of-auth-alterna { text-align: center; color: var(--marinho-50); font-size: .86rem; margin-top: .4rem; }
+.of-auth-alterna { text-align: center; color: var(--texto-suave); font-size: .86rem; margin-top: .4rem; }
 .stApp [class*="st-key-alternar"] button { width: 100%; }
 .of-painel { background: var(--marinho); border-radius: 22px; min-height: 560px; height: 100%;
   position: relative; overflow: hidden; color: #fff; padding: 2.6rem; display: flex;
@@ -242,8 +284,6 @@ section[data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
   line-height: 1.2; margin: 0 0 .7rem; position: relative; padding: 0; }
 .of-painel p { color: rgba(255,255,255,.7); font-size: .98rem; line-height: 1.55; margin: 0;
   position: relative; max-width: 420px; }
-.of-painel .kicker { color: var(--terracota); text-transform: uppercase; letter-spacing: .1em;
-  font-size: .72rem; font-weight: 700; margin-bottom: .8rem; position: relative; }
 @media (max-width: 900px) { .of-painel { display: none; } }
 """
 
