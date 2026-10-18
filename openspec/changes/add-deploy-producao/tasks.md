@@ -14,4 +14,4 @@
 ## 3. Frontend (requer Streamlit Cloud)
 
 - [x] 3.1 Criar o app no Streamlit Community Cloud (arquivo principal `src/app.py`, Python 3.12, secrets com a Base URL do Xano) e verificar que a URL pública abre a tela de login
-- [ ] 3.2 Na URL pública, cadastrar um usuário, registrar uma transação e verificar que ela aparece no Dashboard
+- [x] 3.2 Na URL pública, cadastrar um usuário, registrar uma transação e verificar que ela aparece no Dashboard

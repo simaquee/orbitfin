@@ -12,7 +12,7 @@
 
 ## 3. Integração final
 
-- [ ] 3.1 Percorrer o fluxo completo (cadastro → transações → orçamento → metas → dashboard → relatórios) com um usuário novo no Xano e verificar que os valores são consistentes entre as páginas
+- [x] 3.1 Percorrer o fluxo completo (cadastro → transações → orçamento → metas → dashboard → relatórios) com um usuário novo no Xano e verificar que os valores são consistentes entre as páginas
 
 ## Workflow follow-up
 
