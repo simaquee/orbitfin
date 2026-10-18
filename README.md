@@ -32,7 +32,9 @@ orbitfin/
 └── requirements.txt
 ```
 
-`openspec/specs/` começa vazia: cada `openspec archive <mudança>` copia os requisitos da mudança para lá, e essa pasta vira a documentação oficial do sistema.
+`openspec/specs/` é a documentação oficial do sistema: 8 capacidades (`interface-base`, `autenticacao`, `transacoes`, `orcamentos`, `metas`, `dashboard`, `sugestoes`, `relatorios`), com os requisitos e cenários de cada uma. Cada `openspec archive <mudança>` incorpora ali os requisitos de uma mudança concluída e move a mudança para `changes/archive/`. Novas mudanças começam com `/opsx:propose`.
+
+O `PRODUCT.md` da raiz guarda o contexto de produto usado pela skill de design Impeccable: público, propósito, marca e princípios.
 
 ## 1. Backend no Xano
 
