@@ -27,6 +27,7 @@ orbitfin/
 │   ├── services/                # cliente da API Xano e regras de negócio (funções puras)
 │   └── xano/                    # backend: tabelas, endpoints e funções em XanoScript
 ├── tests/                       # pytest (sem rede: respostas HTTP simuladas)
+├── scripts/                     # teste de integração contra o Xano real
 ├── .streamlit/                  # config.toml (tema) e secrets.toml (não versionado)
 ├── pyproject.toml
 └── requirements.txt
