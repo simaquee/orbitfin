@@ -29,7 +29,15 @@ def _layout(fig: go.Figure, altura: int, legenda: bool = True) -> go.Figure:
                      fixedrange=True)
     fig.update_yaxes(gridcolor=rgba(MARINHO, .07), zeroline=False, tickprefix="R$ ",
                      tickformat=",.0f", tickfont=dict(size=11), fixedrange=True)
+    if _sem_valores(fig):
+        # Sem dados o Plotly usa o intervalo -1..1, que com ",.0f" repete "R$ 1" e "R$ −1".
+        fig.update_yaxes(range=[0, 100])
     return fig
+
+
+def _sem_valores(fig: go.Figure) -> bool:
+    valores = [v for trace in fig.data if getattr(trace, "y", None) is not None for v in trace.y]
+    return all(abs(v or 0) < 1 for v in valores)
 
 
 def mostrar(fig: go.Figure) -> None:
