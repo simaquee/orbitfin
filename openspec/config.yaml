@@ -17,14 +17,12 @@ context: |
   - Testes: pytest. O cliente HTTP do Xano deve ser testável com respostas simuladas.
 
   Arquitetura e convenções:
-  - Organização igual à do repositório do OpenSpec (detalhes em docs/architecture.md):
-    src/app.py = entrypoint; src/commands/ = telas; src/core/ = cliente da API Xano,
-    regras de cálculo, dados e sessão; src/ui/ = tema, sidebar, header, blocos,
-    gráficos e seletores; src/utils/ = formatação; src/xano/ = backend.
-    Testes em test/ espelhando src/ (core, ui, utils) e auxiliares em test/helpers/.
-  - Imports sem prefixo "src." (pythonpath = src e test no pyproject.toml);
+  - Todo o código-fonte fica em src/: src/app.py = entrypoint; src/views/ = telas;
+    src/components/ = tema, sidebar, header, gráficos; src/services/ = cliente da
+    API Xano e regras de cálculo; src/xano/ = backend. Testes em tests/ (raiz).
+  - Imports sem prefixo "src." (pythonpath configurado no pyproject.toml);
     rodar com `streamlit run src/app.py` a partir da raiz.
-  - Regras de cálculo ficam em funções puras em src/core/, nunca dentro das telas.
+  - Regras de cálculo ficam em funções puras em src/services/, nunca dentro das views.
   - Configuração e URLs do Xano apenas em .streamlit/secrets.toml (gitignored);
     versionar somente secrets.toml.example. Nunca commitar tokens.
   - Toda rota de dados exige Authorization: Bearer <token> e isola dados por user_id.

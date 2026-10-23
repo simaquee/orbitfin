@@ -1,12 +1,12 @@
 """OrbitFin — entrypoint e roteamento."""
 import streamlit as st
 
-from core import sessao
-from ui.sidebar import barra_lateral, navegacao_movel
-from ui.theme import aplicar_tema, configurar_pagina
-from ui.blocos import html
-from core.api import MSG_CONFIG, MSG_SESSAO, SessaoExpirada, base_url_configurada
-from commands import cadastro, dashboard, login, metas, orcamento, relatorios, transacoes
+from components import sessao
+from components.sidebar import barra_lateral, navegacao_movel
+from components.theme import aplicar_tema, configurar_pagina
+from components.ui import html
+from services.api import MSG_CONFIG, MSG_SESSAO, SessaoExpirada, base_url_configurada
+from views import cadastro, dashboard, login, metas, orcamento, relatorios, transacoes
 
 PAGINAS = {
     "dashboard": dashboard.render,
