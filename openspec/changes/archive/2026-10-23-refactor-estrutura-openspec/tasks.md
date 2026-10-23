@@ -17,4 +17,4 @@
 ## 3. Publicação
 
 - [x] 3.1 Confirmar com `xano workspace push --dry-run` que o backend não muda (requer Xano)
-- [ ] 3.2 Push na `main` e verificação do app público
+- [x] 3.2 Push na `main` (4409b9b) e verificação do app público: cadastro e as 5 páginas sem erro
