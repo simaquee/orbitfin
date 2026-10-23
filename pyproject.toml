@@ -5,6 +5,7 @@ description = "Organizador financeiro pessoal (Streamlit + Xano), estruturado co
 requires-python = ">=3.12"
 
 [tool.pytest.ini_options]
-# Código-fonte em src/ (imports sem prefixo: "from services.api import ...")
-pythonpath = ["src", "."]
-testpaths = ["tests"]
+# Código em src/ (imports sem prefixo: "from core.api import ...");
+# test/ no path para os auxiliares ("from helpers.fakes import ...").
+pythonpath = ["src", "test"]
+testpaths = ["test"]
