@@ -1,4 +1,7 @@
-"""Seletores compartilhados entre páginas."""
+"""Seletores compartilhados entre páginas.
+
+Spec (OpenSpec): openspec/specs/orcamentos/spec.md, openspec/specs/metas/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

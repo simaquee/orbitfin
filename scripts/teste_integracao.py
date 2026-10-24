@@ -2,6 +2,8 @@
 
 Uso: python scripts/teste_integracao.py <base_url>
 Cria um usuário descartável, exercita transações e orçamentos e limpa o que criou.
+
+Spec (OpenSpec): openspec/specs/autenticacao/spec.md, openspec/specs/transacoes/spec.md, openspec/specs/orcamentos/spec.md
 """
 import secrets
 import sys

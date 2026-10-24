@@ -33,7 +33,7 @@ Um organizador financeiro pessoal deliberadamente simples, com categorias fixas 
 - 7 orçamentos padrão por usuário (R$ 800, 1.200, 400, 300, 200, 150, 500); alerta a partir de 85% do limite; "Metas" é a visão de contenção sobre esses mesmos limites (não há metas de acúmulo).
 - Valores em BRL no formato pt-BR (R$ 1.234,56); datas DD/MM/AAAA; interface em português.
 - Stack existente: Python + Streamlit + Plotly (frontend, em `src/`), Xano (backend REST + JWT, em `src/xano/`), hospedagem no Streamlit Community Cloud. O visual é feito com CSS injetado sobre componentes do Streamlit, o que limita o controle fino de layout e interação.
-- Requisitos formais e mudanças ficam no OpenSpec (`openspec/`).
+- Requisitos formais e mudanças ficam no OpenSpec (`openspec/`): 8 capacidades em `openspec/specs/` (fonte da verdade do comportamento) e o histórico de mudanças em `openspec/changes/archive/`. Cada arquivo de `src/` cita a spec que implementa.
 - Fora do escopo atual (decisão em aberto): contas bancárias, categorias personalizadas, metas de acúmulo, transações recorrentes, importação de extratos.
 
 ## Brand Commitments

@@ -1,4 +1,7 @@
-"""Tema visual OrbitFin (paleta oficial Grupo Marte). Ver design.md > Sistema visual."""
+"""Tema visual OrbitFin (paleta oficial Grupo Marte). Ver design.md > Sistema visual.
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

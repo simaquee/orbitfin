@@ -1,4 +1,7 @@
-"""Leituras da API com cache na sessão (evita chamadas repetidas a cada interação)."""
+"""Leituras da API com cache na sessão (evita chamadas repetidas a cada interação).
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 from datetime import date

@@ -1,3 +1,7 @@
+"""Cabeçalho das páginas: rótulo da seção, título, subtítulo e ação principal.
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 from html import escape

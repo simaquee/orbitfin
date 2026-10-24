@@ -1,4 +1,7 @@
-"""Cliente HTTP do Xano: único ponto de I/O do OrbitFin."""
+"""Cliente HTTP do Xano: único ponto de I/O do OrbitFin.
+
+Spec (OpenSpec): openspec/specs/autenticacao/spec.md, openspec/specs/transacoes/spec.md, openspec/specs/orcamentos/spec.md
+"""
 from __future__ import annotations
 
 import contextlib

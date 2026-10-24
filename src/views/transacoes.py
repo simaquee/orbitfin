@@ -1,4 +1,7 @@
-"""Página Transações (spec: transacoes)."""
+"""Página Transações.
+
+Spec (OpenSpec): openspec/specs/transacoes/spec.md
+"""
 from __future__ import annotations
 
 from datetime import date

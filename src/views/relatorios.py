@@ -1,4 +1,7 @@
-"""Página Relatórios (spec: relatorios)."""
+"""Página Relatórios.
+
+Spec (OpenSpec): openspec/specs/relatorios/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

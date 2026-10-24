@@ -1,4 +1,7 @@
-"""Sugestões financeiras geradas por regras (spec: sugestoes)."""
+"""Sugestões financeiras geradas por regras.
+
+Spec (OpenSpec): openspec/specs/sugestoes/spec.md
+"""
 from __future__ import annotations
 
 from datetime import date

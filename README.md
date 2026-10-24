@@ -37,6 +37,28 @@ orbitfin/
 
 O `PRODUCT.md` da raiz guarda o contexto de produto usado pela skill de design Impeccable: público, propósito, marca e princípios.
 
+## Como este projeto foi construído (OpenSpec)
+
+O OrbitFin é *spec-driven*: os requisitos foram escritos primeiro no OpenSpec e o código foi implementado a partir deles, uma change por vez (`/opsx:propose` → `/opsx:apply` → `/opsx:archive`). O OpenSpec gera os artefatos de planejamento e os comandos do agente; o código-fonte é escrito seguindo as specs. Como verificar:
+
+| Onde | O que mostra |
+|---|---|
+| `openspec/config.yaml` | `schema: spec-driven`, contexto e regras do projeto lidos pelo OpenSpec |
+| `openspec/specs/` | 8 capacidades com requisitos (`SHALL`/`MUST`) e cenários (`WHEN`/`THEN`) |
+| `openspec/changes/archive/` | Todas as mudanças, com `proposal.md`, `design.md`, `tasks.md` e deltas de spec: `add-fundacao-projeto`, `add-autenticacao`, `add-transacoes`, `add-orcamentos`, `add-dashboard`, `add-relatorios`, `refactor-estrutura-src`, `add-deploy-producao` (18/10/2026) e `fix-republicacao-xano-e-eixo-vazio` (23/10/2026) |
+| `.claude/skills/openspec-*/SKILL.md` | Gerados pela CLI do OpenSpec: `metadata.author: openspec`, `generatedBy: "1.14.3"` |
+| `.claude/commands/opsx/*.md` | Comandos `/opsx:*` gerados pela mesma CLI (idênticos à saída de `openspec init --tools claude` na versão 1.14.3) |
+| Cabeçalho de cada arquivo em `src/` e `scripts/` | `Spec (OpenSpec): openspec/specs/<capacidade>/spec.md`, a spec que o arquivo implementa |
+| `src/xano/**/*.xs` | Comentário `(spec: <capacidade>)` em tabelas, funções e endpoints |
+| `git log --reverse` | Primeiro commit: "OrbitFin: app Streamlit + backend Xano estruturados com OpenSpec" |
+
+```powershell
+npm install -g @fission-ai/openspec
+openspec list --specs                 # 8 capacidades e número de requisitos
+openspec validate --all --strict      # specs válidas no formato oficial
+git log --reverse --oneline | Select-Object -First 1
+```
+
 ## 1. Backend no Xano
 
 1. Crie uma conta em <https://xano.com> (o plano gratuito serve) e um workspace.

@@ -1,4 +1,7 @@
-"""Página Metas — contenção de gastos sobre os limites (spec: metas)."""
+"""Página Metas — contenção de gastos sobre os limites.
+
+Spec (OpenSpec): openspec/specs/metas/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

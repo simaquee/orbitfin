@@ -1,4 +1,7 @@
-"""Blocos visuais reutilizáveis (HTML + classes de components/theme.py)."""
+"""Blocos visuais reutilizáveis (HTML + classes de components/theme.py).
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 from html import escape

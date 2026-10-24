@@ -1,4 +1,7 @@
-"""Gráficos Plotly com a paleta oficial e formatação pt-BR."""
+"""Gráficos Plotly com a paleta oficial e formatação pt-BR.
+
+Spec (OpenSpec): openspec/specs/dashboard/spec.md, openspec/specs/relatorios/spec.md
+"""
 from __future__ import annotations
 
 from typing import Sequence

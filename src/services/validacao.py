@@ -1,4 +1,7 @@
-"""Validações de formulário (as mesmas regras são aplicadas no backend)."""
+"""Validações de formulário (as mesmas regras são aplicadas no backend).
+
+Spec (OpenSpec): openspec/specs/autenticacao/spec.md, openspec/specs/transacoes/spec.md, openspec/specs/orcamentos/spec.md
+"""
 from __future__ import annotations
 
 from services.categorias import STATUS, TIPOS, categoria_valida

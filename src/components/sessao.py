@@ -1,4 +1,7 @@
-"""Estado de sessão do Streamlit (token, usuário, navegação, cache de dados)."""
+"""Estado de sessão do Streamlit (token, usuário, navegação, cache de dados).
+
+Spec (OpenSpec): openspec/specs/autenticacao/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

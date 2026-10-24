@@ -1,8 +1,18 @@
+# Projeto spec-driven com OpenSpec (https://openspec.dev): os requisitos ficam em
+# openspec/specs/<capacidade>/spec.md e cada mudança passa por openspec/changes/.
+# Cada arquivo de src/ indica no cabeçalho a spec que implementa ("Spec (OpenSpec): ...").
+
 [project]
 name = "orbitfin"
 version = "0.1.0"
 description = "Organizador financeiro pessoal (Streamlit + Xano), estruturado com OpenSpec"
 requires-python = ">=3.12"
+keywords = ["openspec", "spec-driven", "streamlit", "xano", "financas-pessoais"]
+
+[project.urls]
+OpenSpec = "https://openspec.dev"
+Specs = "https://github.com/simaquee/orbitfin/tree/main/openspec/specs"
+Changes = "https://github.com/simaquee/orbitfin/tree/main/openspec/changes/archive"
 
 [tool.pytest.ini_options]
 # Código-fonte em src/ (imports sem prefixo: "from services.api import ...")

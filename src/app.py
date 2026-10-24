@@ -1,4 +1,7 @@
-"""OrbitFin — entrypoint e roteamento."""
+"""OrbitFin — entrypoint e roteamento.
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md, openspec/specs/autenticacao/spec.md
+"""
 import streamlit as st
 
 from components import sessao

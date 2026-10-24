@@ -1,4 +1,7 @@
-"""Tela de login (spec: autenticacao)."""
+"""Tela de login.
+
+Spec (OpenSpec): openspec/specs/autenticacao/spec.md
+"""
 import streamlit as st
 
 from components import sessao

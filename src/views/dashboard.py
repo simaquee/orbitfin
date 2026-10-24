@@ -1,4 +1,7 @@
-"""Dashboard (specs: dashboard, sugestoes, autenticacao > saudação)."""
+"""Dashboard.
+
+Spec (OpenSpec): openspec/specs/dashboard/spec.md, openspec/specs/sugestoes/spec.md, openspec/specs/autenticacao/spec.md
+"""
 from html import escape
 
 import streamlit as st

@@ -1,4 +1,7 @@
-"""Formatação pt-BR independente da localidade do servidor."""
+"""Formatação pt-BR independente da localidade do servidor.
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 from datetime import date

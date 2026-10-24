@@ -1,4 +1,7 @@
-"""Regras de cálculo do OrbitFin (funções puras, sem Streamlit nem rede)."""
+"""Regras de cálculo do OrbitFin (funções puras, sem Streamlit nem rede).
+
+Spec (OpenSpec): openspec/specs/dashboard/spec.md, openspec/specs/orcamentos/spec.md, openspec/specs/metas/spec.md, openspec/specs/relatorios/spec.md
+"""
 from __future__ import annotations
 
 import calendar

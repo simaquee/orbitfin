@@ -1,4 +1,7 @@
-"""Categorias padronizadas (espelhadas na validação do backend xano/)."""
+"""Categorias padronizadas (espelhadas na validação do backend xano/).
+
+Spec (OpenSpec): openspec/specs/transacoes/spec.md
+"""
 
 CATEGORIAS = {
     "despesa": ["Alimentação", "Moradia", "Transporte", "Lazer", "Saúde", "Educação", "Outros"],

@@ -1,4 +1,7 @@
-"""Página Orçamento (spec: orcamentos)."""
+"""Página Orçamento.
+
+Spec (OpenSpec): openspec/specs/orcamentos/spec.md
+"""
 from __future__ import annotations
 
 import streamlit as st

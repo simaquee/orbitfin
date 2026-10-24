@@ -1,3 +1,7 @@
+"""Barra lateral e navegação móvel do OrbitFin.
+
+Spec (OpenSpec): openspec/specs/interface-base/spec.md
+"""
 from __future__ import annotations
 
 from html import escape
