@@ -194,9 +194,13 @@ def ler_ofx(conteudo: bytes) -> list[dict]:
 
 
 # ---------------------------------------------------------------------- PDF
-_NUM_BR = r"\(?-?\s?(?:R\$\s?)?\d{1,3}(?:\.\d{3})*,\d{2}\)?(?:\s?-|\s?[DC](?![A-Za-z]))?"
+_NUM_BR = r"\(?[-+]?\s?(?:R\$\s?)?\d{1,3}(?:\.\d{3})*,\d{2}\)?(?:\s?-|\s?[DC](?![A-Za-z]))?"
 _LINHA_PDF = re.compile(
     rf"^\s*(\d{{2}}/\d{{2}}(?:/\d{{2,4}})?)\s+(.+?)\s+({_NUM_BR})(?:\s+{_NUM_BR})?\s*$")
+# Layout em tabela (um campo por linha): data [hora] / descrição / valor / saldo
+_SO_DATA = re.compile(r"^\s*(\d{2}/\d{2}(?:/\d{2,4})?)(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?\s*$")
+_SO_HORA = re.compile(r"^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$")
+_SO_VALOR = re.compile(rf"^\s*{_NUM_BR}\s*$")
 
 
 def _ano_do_documento(texto: str) -> int:
@@ -216,13 +220,10 @@ def texto_pdf(conteudo: bytes) -> str:
         raise ErroExtrato(MSG_PDF_INVALIDO) from None
 
 
-def ler_pdf(conteudo: bytes) -> list[dict]:
-    texto = texto_pdf(conteudo)
-    if not texto.strip():
-        raise ErroExtrato(MSG_PDF_IMAGEM)
-    ano = _ano_do_documento(texto)
+def _pdf_por_linha(linhas: list[str], ano: int) -> list[dict]:
+    """Um lançamento por linha: 'data descrição valor [saldo]'."""
     resultado = []
-    for linha_txt in texto.splitlines():
+    for linha_txt in linhas:
         m = _LINHA_PDF.match(linha_txt)
         if not m:
             continue
@@ -232,6 +233,43 @@ def ler_pdf(conteudo: bytes) -> list[dict]:
         if linha := _linha(parse_data_extrato(data_txt, ano), descricao, parse_valor(valor_txt)):
             resultado.append(linha)
     return resultado
+
+
+def _pdf_por_bloco(linhas: list[str], ano: int) -> list[dict]:
+    """Tabela com um campo por linha: uma linha só com data abre o lançamento; a hora é
+    ignorada; o texto até o primeiro valor é a descrição; o 1º valor é a movimentação e o
+    2º (saldo) é descartado. Cabeçalhos e rodapés de página ficam depois dos valores e não
+    entram na descrição."""
+    resultado = []
+    blocos: list[dict] = []
+    for linha_txt in linhas:
+        if m := _SO_DATA.match(linha_txt):
+            blocos.append({"data": m.group(1), "descricao": [], "valores": []})
+        elif not blocos:
+            continue
+        elif _SO_VALOR.match(linha_txt):
+            blocos[-1]["valores"].append(linha_txt)
+        elif _SO_HORA.match(linha_txt) and not blocos[-1]["descricao"]:
+            continue
+        elif not blocos[-1]["valores"] and linha_txt.strip():
+            blocos[-1]["descricao"].append(linha_txt.strip())
+    for b in blocos:
+        descricao = " ".join(b["descricao"])
+        if not b["valores"] or not descricao or "saldo" in _sem_acento(descricao).lower():
+            continue
+        if linha := _linha(parse_data_extrato(b["data"], ano), descricao, parse_valor(b["valores"][0])):
+            resultado.append(linha)
+    return resultado
+
+
+def ler_pdf(conteudo: bytes) -> list[dict]:
+    texto = texto_pdf(conteudo)
+    if not texto.strip():
+        raise ErroExtrato(MSG_PDF_IMAGEM)
+    ano = _ano_do_documento(texto)
+    linhas = texto.splitlines()
+    # Cada banco diagrama o PDF de um jeito: fica a leitura que encontrar mais lançamentos
+    return max(_pdf_por_linha(linhas, ano), _pdf_por_bloco(linhas, ano), key=len)
 
 
 # ----------------------------------------------------------- entrada única

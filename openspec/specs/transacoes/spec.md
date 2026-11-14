@@ -107,6 +107,10 @@ O sistema SHALL oferecer o botão "Importar extrato" na página Transações, qu
 - **WHEN** o usuário envia um PDF com a linha "07/11/2026 PIX ENVIADO JOAO 150,00- 1.200,00"
 - **THEN** o sistema lista "PIX ENVIADO JOAO" em 07/11/2026 com R$ −150,00 e ignora o saldo R$ 1.200,00
 
+#### Scenario: Extrato em PDF no formato de tabela
+- **WHEN** o usuário envia um PDF em que data, hora, descrição, valor e saldo aparecem em linhas separadas, como "01/10/2026" / "10:53" / "Pagamento de boleto - internet" / "-R$ 166,12" / "R$ 8.184,33"
+- **THEN** o sistema lista "Pagamento de boleto - internet" em 01/10/2026 com R$ −166,12, ignora a hora e o saldo e não inclui cabeçalhos ou rodapés de página na descrição
+
 #### Scenario: PDF escaneado
 - **WHEN** o usuário envia um PDF sem texto (imagem digitalizada)
 - **THEN** o sistema exibe "Não foi possível ler o texto deste PDF (pode ser uma imagem escaneada). Exporte o extrato em CSV ou OFX no app do banco."

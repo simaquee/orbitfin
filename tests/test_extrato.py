@@ -117,6 +117,25 @@ def test_pdf_cenario_da_spec_ignora_saldo():
     ]
 
 
+def test_pdf_em_tabela_um_campo_por_linha():
+    # Layout de contas digitais (ex.: Mercado Pago): data, hora, descrição, valor e saldo em linhas
+    # separadas, valores como "-R$ 166,12" e cabeçalho de página entre os lançamentos.
+    pdf = pdf_com_linhas([
+        "Extrato de movimentações", "Período", "01/10/2026 a 31/10/2026",
+        "Saldo inicial", "R$ 8.350,45",
+        "Data / hora", "Descrição", "Movimentação", "Saldo",
+        "01/10/2026", "10:53", "Pagamento de boleto - internet", "-R$ 166,12", "R$ 8.184,33",
+        "01/10/2026", "10:54", "Crédito de venda - marketplace", "R$ 515,49", "R$ 8.699,82",
+        "Página 2", "Data / hora", "Descrição", "Movimentação", "Saldo",
+        "02/10/2026 08:30", "Venda recebida", "- link de pagamento", "R$ 119,61", "R$ 8.819,43",
+    ])
+    assert ler_extrato("mercado_pago.pdf", pdf) == [
+        {"data": "2026-10-01", "descricao": "Pagamento de boleto - internet", "valor": -166.12},
+        {"data": "2026-10-01", "descricao": "Crédito de venda - marketplace", "valor": 515.49},
+        {"data": "2026-10-02", "descricao": "Venda recebida - link de pagamento", "valor": 119.61},
+    ]
+
+
 def test_pdf_data_sem_ano_usa_ano_do_documento():
     pdf = pdf_com_linhas(["Periodo: 01/11/2025 a 30/11/2025", "05/11 MERCADO -45,90"])
     assert ler_extrato("e.pdf", pdf) == [{"data": "2025-11-05", "descricao": "MERCADO", "valor": -45.9}]

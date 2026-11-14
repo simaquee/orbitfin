@@ -45,7 +45,7 @@ O OrbitFin é *spec-driven*: os requisitos foram escritos primeiro no OpenSpec e
 |---|---|
 | `openspec/config.yaml` | `schema: spec-driven`, contexto e regras do projeto lidos pelo OpenSpec |
 | `openspec/specs/` | 8 capacidades com requisitos (`SHALL`/`MUST`) e cenários (`WHEN`/`THEN`) |
-| `openspec/changes/archive/` | Todas as mudanças, com `proposal.md`, `design.md`, `tasks.md` e deltas de spec: `add-fundacao-projeto`, `add-autenticacao`, `add-transacoes`, `add-orcamentos`, `add-dashboard`, `add-relatorios`, `refactor-estrutura-src`, `add-deploy-producao` (18/10/2026), `fix-republicacao-xano-e-eixo-vazio` (23/10/2026) e `add-importacao-extrato` (13/11/2026) |
+| `openspec/changes/archive/` | Todas as mudanças, com `proposal.md`, `design.md`, `tasks.md` e deltas de spec: `add-fundacao-projeto`, `add-autenticacao`, `add-transacoes`, `add-orcamentos`, `add-dashboard`, `add-relatorios`, `refactor-estrutura-src`, `add-deploy-producao` (18/10/2026), `fix-republicacao-xano-e-eixo-vazio` (23/10/2026), `add-importacao-extrato` e `fix-pdf-extrato-em-tabela` (13/11/2026) |
 | `.claude/skills/openspec-*/SKILL.md` | Gerados pela CLI do OpenSpec: `metadata.author: openspec`, `generatedBy: "1.14.3"` |
 | `.claude/commands/opsx/*.md` | Comandos `/opsx:*` gerados pela mesma CLI (idênticos à saída de `openspec init --tools claude` na versão 1.14.3) |
 | Cabeçalho de cada arquivo em `src/` e `scripts/` | `Spec (OpenSpec): openspec/specs/<capacidade>/spec.md`, a spec que o arquivo implementa |
@@ -98,7 +98,7 @@ Em **Transações > Importar extrato**, envie o extrato do banco em **PDF, CSV o
 
 - **CSV**: separador `;`, `,` ou tabulação; colunas reconhecidas pelo cabeçalho (`Data`, `Descrição`/`Histórico`, `Valor` ou `Crédito`/`Débito`), em UTF-8 ou Latin-1.
 - **OFX**: o formato "Money/OFX" que quase todo banco exporta.
-- **PDF**: linhas no formato `data · descrição · valor [saldo]`. PDF escaneado (imagem) não tem texto: exporte em CSV ou OFX.
+- **PDF**: lançamento numa linha (`data · descrição · valor [saldo]`) ou em tabela com um campo por linha (data, hora, descrição, valor e saldo, como no Mercado Pago). PDF escaneado (imagem) não tem texto: exporte em CSV ou OFX.
 
 Cada lançamento vira um card com **Descrição** e **Valor** editáveis e o botão **Confirmar** (ou **Descartar**). **Confirmar importação** só libera com todos os cards confirmados e grava tudo de uma vez pelo endpoint `POST /transacoes/lote` (até 500 linhas, tudo ou nada). Valor negativo vira despesa, positivo vira receita; categoria "Outros" e status "Pago".
 
