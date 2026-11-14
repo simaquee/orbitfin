@@ -54,4 +54,5 @@ query "transacoes/lote" verb=POST {
   }
 
   response = {criadas: $input.transacoes|count}
+  guid = "rD5z3jgUjN6be0V6O5DkUsDmt-o"
 }

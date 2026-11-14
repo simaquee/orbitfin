@@ -7,6 +7,7 @@ Spec (OpenSpec): openspec/specs/autenticacao/spec.md, openspec/specs/transacoes/
 """
 import secrets
 import sys
+import time
 from datetime import date
 
 sys.path.insert(0, "src")
@@ -18,6 +19,7 @@ senha = "Teste" + secrets.token_hex(4) + "9"
 
 
 def etapa(nome, fn):
+    time.sleep(2.1)  # plano gratuito do Xano: no máximo 10 requisições a cada 20 s
     try:
         r = fn()
         print(f"OK   {nome}")
