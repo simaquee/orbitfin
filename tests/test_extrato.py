@@ -6,8 +6,8 @@ import pytest
 
 from services.extrato import (
     MSG_CSV_COLUNAS, MSG_FORMATO, MSG_LIMITE, MSG_PDF_IMAGEM, MSG_PDF_INVALIDO, MSG_VALOR_ZERO,
-    MSG_VAZIO, ErroExtrato, confirmar_todas, ler_extrato, montar_lote, parse_data_extrato, parse_valor, pendentes,
-    pode_importar, validar_linha,
+    MSG_VAZIO, ErroExtrato, confirmar_todas, ler_extrato, mes_mais_recente, montar_lote, parse_data_extrato, parse_valor, pendentes,
+    pode_importar, sugerir_categoria, validar_linha,
 )
 from tests.fakes import pdf_com_linhas
 
@@ -38,8 +38,8 @@ def test_data_sem_ano_usa_ano_padrao():
 def test_csv_cenario_da_spec():
     csv = "Data;Descrição;Valor\n05/11/2026;Mercado Bom Preço;-45,90\n06/11/2026;Salário Empresa X;3.000,00\n"
     assert ler_extrato("extrato.csv", csv.encode("utf-8")) == [
-        {"data": "2026-11-05", "descricao": "Mercado Bom Preço", "valor": -45.9},
-        {"data": "2026-11-06", "descricao": "Salário Empresa X", "valor": 3000.0},
+        {"data": "2026-11-05", "descricao": "Mercado Bom Preço", "valor": -45.9, "categoria": "Alimentação"},
+        {"data": "2026-11-06", "descricao": "Salário Empresa X", "valor": 3000.0, "categoria": "Salário"},
     ]
 
 
@@ -89,8 +89,8 @@ OFX = """OFXHEADER:100
 
 def test_ofx_cenario_da_spec_sem_tags_de_fechamento():
     assert ler_extrato("extrato.ofx", OFX.encode()) == [
-        {"data": "2026-11-03", "descricao": "CONTA DE LUZ", "valor": -120.5},
-        {"data": "2026-11-04", "descricao": "TED RECEBIDA", "valor": 1000.0},
+        {"data": "2026-11-03", "descricao": "CONTA DE LUZ", "valor": -120.5, "categoria": "Moradia"},
+        {"data": "2026-11-04", "descricao": "TED RECEBIDA", "valor": 1000.0, "categoria": "Outros"},
     ]
 
 
@@ -98,7 +98,7 @@ def test_ofx_com_tags_fechadas():
     ofx = ("<OFX><STMTTRN><DTPOSTED>20261105</DTPOSTED><TRNAMT>-9,90</TRNAMT>"
            "<MEMO>Streaming</MEMO></STMTTRN></OFX>")
     assert ler_extrato("a.ofx", ofx.encode()) == [
-        {"data": "2026-11-05", "descricao": "Streaming", "valor": -9.9}]
+        {"data": "2026-11-05", "descricao": "Streaming", "valor": -9.9, "categoria": "Lazer"}]
 
 
 # --- PDF --------------------------------------------------------------------
@@ -112,8 +112,8 @@ def test_pdf_cenario_da_spec_ignora_saldo():
         "Total de lancamentos: 2",
     ])
     assert ler_extrato("extrato.pdf", pdf) == [
-        {"data": "2026-11-07", "descricao": "PIX ENVIADO JOAO", "valor": -150.0},
-        {"data": "2026-11-08", "descricao": "SALARIO EMPRESA X", "valor": 3000.0},
+        {"data": "2026-11-07", "descricao": "PIX ENVIADO JOAO", "valor": -150.0, "categoria": "Outros"},
+        {"data": "2026-11-08", "descricao": "SALARIO EMPRESA X", "valor": 3000.0, "categoria": "Salário"},
     ]
 
 
@@ -130,15 +130,15 @@ def test_pdf_em_tabela_um_campo_por_linha():
         "02/10/2026 08:30", "Venda recebida", "- link de pagamento", "R$ 119,61", "R$ 8.819,43",
     ])
     assert ler_extrato("mercado_pago.pdf", pdf) == [
-        {"data": "2026-10-01", "descricao": "Pagamento de boleto - internet", "valor": -166.12},
-        {"data": "2026-10-01", "descricao": "Crédito de venda - marketplace", "valor": 515.49},
-        {"data": "2026-10-02", "descricao": "Venda recebida - link de pagamento", "valor": 119.61},
+        {"data": "2026-10-01", "descricao": "Pagamento de boleto - internet", "valor": -166.12, "categoria": "Moradia"},
+        {"data": "2026-10-01", "descricao": "Crédito de venda - marketplace", "valor": 515.49, "categoria": "Freelance"},
+        {"data": "2026-10-02", "descricao": "Venda recebida - link de pagamento", "valor": 119.61, "categoria": "Freelance"},
     ]
 
 
 def test_pdf_data_sem_ano_usa_ano_do_documento():
     pdf = pdf_com_linhas(["Periodo: 01/11/2025 a 30/11/2025", "05/11 MERCADO -45,90"])
-    assert ler_extrato("e.pdf", pdf) == [{"data": "2025-11-05", "descricao": "MERCADO", "valor": -45.9}]
+    assert ler_extrato("e.pdf", pdf) == [{"data": "2025-11-05", "descricao": "MERCADO", "valor": -45.9, "categoria": "Alimentação"}]
 
 
 def test_pdf_sem_texto():
@@ -167,9 +167,9 @@ def test_montar_lote_segue_contrato_do_post():
     linhas = [{"data": "2026-11-05", "descricao": " Mercado ", "valor": -45.9, "confirmado": True},
               {"data": "2026-11-06", "descricao": "Salário", "valor": 3000, "confirmado": True}]
     assert montar_lote(linhas) == [
-        {"tipo": "despesa", "valor": 45.9, "data": "2026-11-05", "categoria": "Outros",
+        {"tipo": "despesa", "valor": 45.9, "data": "2026-11-05", "categoria": "Alimentação",
          "descricao": "Mercado", "status": "pago"},
-        {"tipo": "receita", "valor": 3000.0, "data": "2026-11-06", "categoria": "Outros",
+        {"tipo": "receita", "valor": 3000.0, "data": "2026-11-06", "categoria": "Salário",
          "descricao": "Salário", "status": "pago"},
     ]
 
@@ -186,11 +186,11 @@ def test_confirmar_tudo_usa_valores_atuais_e_mantem_valor_zero_pendente():
     linhas = [{"id": 0, "descricao": "Mercado", "valor": -45.9, "confirmado": False},
               {"id": 1, "descricao": "PIX", "valor": -150.0, "confirmado": False},
               {"id": 2, "descricao": "Salário", "valor": 3000.0, "confirmado": True}]
-    atuais = {0: (" Aluguel garagem ", -150.0), 1: ("PIX", 0.0), 2: ("Salário", 3000.0)}
+    atuais = {0: (" Aluguel garagem ", -150.0, "Moradia"), 1: ("PIX", 0.0, "Outros"), 2: ("Salário", 3000.0, "Salário")}
     assert confirmar_todas(linhas, atuais) == 1
-    assert linhas[0] == {"id": 0, "descricao": "Aluguel garagem", "valor": -150.0, "confirmado": True}
+    assert linhas[0] == {"id": 0, "descricao": "Aluguel garagem", "valor": -150.0, "categoria": "Moradia", "confirmado": True}
     assert linhas[1]["confirmado"] is False
-    atuais[1] = ("PIX", -150.0)
+    atuais[1] = ("PIX", -150.0, "Outros")
     assert confirmar_todas(linhas, atuais) == 0
     assert pode_importar(linhas)
 
@@ -199,3 +199,37 @@ def test_confirmar_tudo_usa_valores_atuais_e_mantem_valor_zero_pendente():
                                          (None, MSG_VALOR_ZERO), (-45.9, None), (10, None)])
 def test_validar_linha(valor, erro):
     assert validar_linha(valor) == erro
+
+
+# --- categoria --------------------------------------------------------------
+@pytest.mark.parametrize("descricao, valor, esperada", [
+    ("Compra débito - farmácia", -112.55, "Saúde"),
+    ("Compra débito - supermercado", -204.22, "Alimentação"),
+    ("Compra débito - transporte", -66.43, "Transporte"),
+    ("Pagamento de boleto - condomínio", -408.47, "Moradia"),
+    ("Transferência Mercado Pago", -50.0, "Outros"),  # nome do banco não vira "mercado"
+    ("Pix enviado - serviços", -378.9, "Outros"),
+    ("Salário Empresa X", 3000.0, "Salário"),
+    ("Venda recebida - cartão", 567.5, "Freelance"),
+    ("Rendimento da conta", 12.3, "Investimentos"),
+    ("Reembolso de compra", 142.02, "Outros"),
+])
+def test_sugerir_categoria_pela_descricao(descricao, valor, esperada):
+    assert sugerir_categoria(descricao, valor) == esperada
+
+
+def test_csv_com_coluna_de_categoria_valida_e_invalida():
+    csv = ("Data;Descrição;Valor;Categoria\n"
+           "05/11/2026;Loja X;-80,00;lazer\n"          # válida para despesa (sem acento/maiúscula)
+           "06/11/2026;Farmácia Boa;-30,00;Mercado\n")  # inválida: cai na sugestão pela descrição
+    assert [l["categoria"] for l in ler_extrato("x.csv", csv.encode())] == ["Lazer", "Saúde"]
+
+
+def test_montar_lote_usa_categoria_do_card_e_corrige_se_o_tipo_mudou():
+    linhas = [{"data": "2026-10-02", "descricao": "Farmácia", "valor": -30.0, "categoria": "Saúde"},
+              {"data": "2026-10-03", "descricao": "Venda", "valor": 50.0, "categoria": "Saúde"}]
+    assert [t["categoria"] for t in montar_lote(linhas)] == ["Saúde", "Freelance"]
+
+
+def test_mes_mais_recente():
+    assert mes_mais_recente([{"data": "2026-09-30"}, {"data": "2026-10-31"}]) == (2026, 10)

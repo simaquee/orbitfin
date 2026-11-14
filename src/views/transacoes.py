@@ -123,20 +123,35 @@ def _ler_arquivo(imp: dict) -> None:
         st.rerun()
 
 
+def _campos_atuais(imp: dict, linha: dict) -> tuple[str, float, str, str]:
+    """Descrição, valor, tipo e categoria como estão nos campos do card (ou os lidos do extrato)."""
+    k = f"imp_{imp['lote']}_{linha['id']}"
+    descricao = st.session_state.get(f"{k}_desc", linha["descricao"])
+    valor = st.session_state.get(f"{k}_valor", linha["valor"])
+    tipo = "receita" if valor > 0 else "despesa"
+    padrao = linha.get("categoria")
+    if padrao not in CATEGORIAS[tipo]:  # o sinal do valor mudou: sugere de novo para o tipo
+        padrao = extrato.sugerir_categoria(descricao, valor)
+    return descricao, valor, tipo, st.session_state.get(f"{k}_cat_{tipo}", padrao)
+
+
 def _card_linha(imp: dict, linha: dict) -> None:
     k = f"imp_{imp['lote']}_{linha['id']}"
     confirmado = linha["confirmado"]
-    valor_atual = st.session_state.get(f"{k}_valor", linha["valor"])
-    tipo = "Receita" if valor_atual > 0 else "Despesa"
+    _, _, tipo, categoria_atual = _campos_atuais(imp, linha)
     with st.container(border=True, key=f"{k}_linha"):
-        c_info, c_desc, c_valor, c_ok, c_fora = st.columns([1.5, 3.4, 1.6, 1.2, 1.1],
-                                                           vertical_alignment="bottom")
+        c_info, c_desc, c_valor, c_cat, c_ok, c_fora = st.columns(
+            [1.3, 2.6, 1.8, 1.7, 1.1, 1.0], vertical_alignment="bottom")
         selo = chip("Confirmado", "m") if confirmado else chip("Pendente", "t")
-        c_info.markdown(f"**{data_br(linha['data'])}**<br>{tipo}<br>{selo}", unsafe_allow_html=True)
+        c_info.markdown(f"**{data_br(linha['data'])}**<br>{TIPOS[tipo]}<br>{selo}",
+                        unsafe_allow_html=True)
         descricao = c_desc.text_input("Descrição", value=linha["descricao"], key=f"{k}_desc",
                                       disabled=confirmado)
         valor = c_valor.number_input("Valor (R$)", value=float(linha["valor"]), step=0.01,
                                      format="%.2f", key=f"{k}_valor", disabled=confirmado)
+        opcoes = CATEGORIAS[tipo]
+        categoria = c_cat.selectbox("Categoria", opcoes, index=opcoes.index(categoria_atual),
+                                    key=f"{k}_cat_{tipo}", disabled=confirmado)
         if confirmado:
             if c_ok.button("Editar", key=f"{k}_editar", type="tertiary", width="stretch"):
                 linha["confirmado"] = False
@@ -146,7 +161,8 @@ def _card_linha(imp: dict, linha: dict) -> None:
             if erro:
                 st.error(erro)
             else:
-                linha.update(descricao=descricao.strip(), valor=round(valor, 2), confirmado=True)
+                linha.update(descricao=descricao.strip(), valor=round(valor, 2),
+                             categoria=categoria, confirmado=True)
                 st.rerun()
         if c_fora.button("Descartar", key=f"{k}_descartar", type="tertiary", width="stretch"):
             imp["linhas"].remove(linha)
@@ -163,9 +179,8 @@ def _revisao(imp: dict) -> None:
     if tudo.button("Confirmar tudo", key="imp_confirmar_tudo", width="stretch", disabled=not faltam):
         atuais = {}
         for linha in linhas:
-            k = f"imp_{imp['lote']}_{linha['id']}"
-            atuais[linha["id"]] = (st.session_state.get(f"{k}_desc", linha["descricao"]),
-                                   st.session_state.get(f"{k}_valor", linha["valor"]))
+            descricao, valor, _, categoria = _campos_atuais(imp, linha)
+            atuais[linha["id"]] = (descricao, valor, categoria)
         if extrato.confirmar_todas(linhas, atuais):
             st.session_state["aviso_confirmar_tudo"] = True
         st.rerun()
@@ -189,10 +204,14 @@ def _revisao(imp: dict) -> None:
             st.error(str(e))
             return
         criadas = int(resposta.get("criadas", len(linhas)))
+        ano, mes = extrato.mes_mais_recente(linhas)
         dados.invalidar()
         _fechar_importacao()
+        # A lista abre no mês do extrato (senão um extrato de outro mês parece não ter sido salvo)
+        st.session_state["filtro_mes"] = (ano, mes)
         st.session_state["aviso_importacao"] = (
-            f"{criadas} transações importadas." if criadas != 1 else "1 transação importada.")
+            f"{criadas} transações importadas. Mostrando {mes_abrev(ano, mes)}." if criadas != 1
+            else f"1 transação importada. Mostrando {mes_abrev(ano, mes)}.")
         st.rerun()
 
 
@@ -245,7 +264,9 @@ def render() -> None:
     hoje = dados.hoje()
     f1, f2, f3, f4 = st.columns(4)
     opcoes_mes = _opcoes_mes(txs, hoje)
-    periodo = f1.selectbox("Mês", opcoes_mes, index=opcoes_mes.index((hoje.year, hoje.month)),
+    if st.session_state.get("filtro_mes") not in opcoes_mes:
+        st.session_state["filtro_mes"] = (hoje.year, hoje.month)
+    periodo = f1.selectbox("Mês", opcoes_mes, key="filtro_mes",
                            format_func=lambda p: p if p == TODOS else mes_abrev(*p))
     tipo = f2.selectbox("Tipo", [TODOS, *TIPOS], format_func=lambda v: TIPOS.get(v, v))
     status = f3.selectbox("Status", [TODOS, *STATUS], format_func=lambda v: STATUS.get(v, v))

@@ -14,6 +14,8 @@ import unicodedata
 from collections import Counter
 from datetime import date
 
+from services.categorias import CATEGORIAS, categoria_valida
+
 FORMATOS = ("pdf", "csv", "ofx")
 CATEGORIA_IMPORTADA = "Outros"  # válida para receita e despesa
 MAX_LINHAS = 500  # limite do endpoint /transacoes/lote
@@ -107,6 +109,7 @@ _COLUNAS = {
     "valor": ("valor", "amount", "quantia", "montante"),
     "credito": ("credito", "entrada"),
     "debito": ("debito", "saida"),
+    "categoria": ("categoria", "category"),
 }
 
 
@@ -164,6 +167,8 @@ def ler_csv(conteudo: bytes) -> list[dict]:
         if "saldo" in _sem_acento(descricao).lower():
             continue
         if linha := _linha(parse_data_extrato(celula(campos, "data")), descricao, valor):
+            if categoria := celula(campos, "categoria").strip():
+                linha["categoria_extrato"] = categoria
             resultado.append(linha)
     return resultado
 
@@ -283,7 +288,53 @@ def ler_extrato(nome_arquivo: str, conteudo: bytes) -> list[dict]:
         raise ErroExtrato(MSG_VAZIO)
     if len(linhas) > MAX_LINHAS:
         raise ErroExtrato(MSG_LIMITE)
+    for linha in linhas:
+        linha["categoria"] = sugerir_categoria(linha["descricao"], linha["valor"],
+                                               linha.pop("categoria_extrato", None))
     return linhas
+
+
+# ------------------------------------------------------------- categoria
+# Palavras-chave (sem acento, minúsculas) por categoria; a primeira regra que casar vence.
+_REGRAS_CATEGORIA = {
+    "despesa": [
+        ("Alimentação", ("supermercado", "mercado", "restaurante", "ifood", "padaria", "lanche",
+                         "acougue", "hortifruti", "alimentacao", "delivery")),
+        ("Moradia", ("condominio", "aluguel", "energia", "conta de luz", "agua", "saneamento",
+                     " gas ", "internet", "iptu")),
+        ("Transporte", ("transporte", "uber", " 99 ", "combustivel", "posto", "gasolina",
+                        "estacionamento", "pedagio", "onibus", "metro", "taxi")),
+        ("Saúde", ("farmacia", "drogaria", "medico", "hospital", "clinica", "laboratorio",
+                   "plano de saude", "saude", "dentista")),
+        ("Lazer", ("cinema", "streaming", "netflix", "spotify", "viagem", "hotel", "lazer",
+                   " show", "ingresso", " bar ")),
+        ("Educação", ("escola", "faculdade", "curso", "educacao", "livraria", "mensalidade")),
+    ],
+    "receita": [
+        ("Salário", ("salario", "folha de pagamento", "proventos", "holerite")),
+        ("Investimentos", ("rendimento", "investimento", "dividendo", "juros", "resgate", "cdb",
+                           "tesouro")),
+        ("Freelance", ("venda", "freelance", "servico", "cliente", "marketplace")),
+    ],
+}
+
+
+def _normal(texto: str) -> str:
+    return " " + re.sub(r"\s+", " ", _sem_acento(texto or "").lower()) + " "
+
+
+def sugerir_categoria(descricao: str, valor: float, categoria_extrato: str | None = None) -> str:
+    """Categoria do extrato (se válida para o tipo) ou sugestão pela descrição; senão "Outros"."""
+    tipo = "despesa" if valor < 0 else "receita"
+    if categoria_extrato:
+        for categoria in CATEGORIAS[tipo]:
+            if _normal(categoria) == _normal(categoria_extrato):
+                return categoria
+    texto = _normal(descricao).replace("mercado pago", "")  # nome do banco, não é compra
+    for categoria, chaves in _REGRAS_CATEGORIA[tipo]:
+        if any(chave in texto for chave in chaves):
+            return categoria
+    return CATEGORIA_IMPORTADA
 
 
 # ------------------------------------------------------- revisão e envio
@@ -295,15 +346,18 @@ def pendentes(linhas: list[dict]) -> int:
     return sum(1 for l in linhas if not l.get("confirmado"))
 
 
-def confirmar_todas(linhas: list[dict], atuais: dict[int, tuple[str, float]]) -> int:
+def confirmar_todas(linhas: list[dict], atuais: dict[int, tuple[str, float, str]]) -> int:
     """'Confirmar tudo': confirma cada card pendente com os valores atuais dos campos
-    (id -> (descrição, valor)). Card com valor zero continua pendente. Devolve quantos sobraram."""
+    (id -> (descrição, valor, categoria)). Card com valor zero continua pendente.
+    Devolve quantos sobraram."""
     for linha in linhas:
         if linha.get("confirmado"):
             continue
-        descricao, valor = atuais.get(linha["id"], (linha["descricao"], linha["valor"]))
+        descricao, valor, categoria = atuais.get(
+            linha["id"], (linha["descricao"], linha["valor"], linha.get("categoria")))
         if validar_linha(valor) is None:
-            linha.update(descricao=(descricao or "").strip(), valor=round(valor, 2), confirmado=True)
+            linha.update(descricao=(descricao or "").strip(), valor=round(valor, 2),
+                         categoria=categoria, confirmado=True)
     return pendentes(linhas)
 
 
@@ -314,9 +368,18 @@ def pode_importar(linhas: list[dict]) -> bool:
 def transacao_importada(linha: dict) -> dict:
     """Linha revisada -> payload de transação (mesmo contrato do POST /transacoes)."""
     valor = round(float(linha["valor"]), 2)
-    return {"tipo": "despesa" if valor < 0 else "receita", "valor": abs(valor),
-            "data": linha["data"], "categoria": CATEGORIA_IMPORTADA,
+    tipo = "despesa" if valor < 0 else "receita"
+    categoria = linha.get("categoria")
+    if not categoria_valida(tipo, categoria):  # ex.: o sinal do valor mudou na revisão
+        categoria = sugerir_categoria(linha.get("descricao") or "", valor)
+    return {"tipo": tipo, "valor": abs(valor), "data": linha["data"], "categoria": categoria,
             "descricao": (linha.get("descricao") or "").strip(), "status": "pago"}
+
+
+def mes_mais_recente(linhas: list[dict]) -> tuple[int, int]:
+    """(ano, mês) do lançamento mais recente: a lista de Transações abre nesse mês após importar."""
+    ultima = max(l["data"] for l in linhas)
+    return int(ultima[:4]), int(ultima[5:7])
 
 
 def montar_lote(linhas: list[dict]) -> list[dict]:
