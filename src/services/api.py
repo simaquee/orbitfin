@@ -93,6 +93,11 @@ class Cliente:
     def excluir_transacao(self, transacao_id: int) -> None:
         self.requisitar("DELETE", f"/transacoes/{transacao_id}", texto="Excluindo...")
 
+    def criar_transacoes_lote(self, transacoes: list[dict]) -> dict:
+        """Importação de extrato: cria todas ou nenhuma (até 500 por chamada)."""
+        return self.requisitar("POST", "/transacoes/lote", json={"transacoes": transacoes},
+                               texto="Importando...")
+
     # --- Orçamentos -----------------------------------------------------
     def listar_orcamentos(self, inicio: str, fim: str) -> list[dict]:
         return _como_lista(self.requisitar("GET", "/budgets",

@@ -92,6 +92,16 @@ streamlit run src/app.py
 
 Acesse <http://localhost:8501>. Sem `secrets.toml` configurado, o app mostra como configurá-lo.
 
+### Importação de extrato
+
+Em **Transações > Importar extrato**, envie o extrato do banco em **PDF, CSV ou OFX**. A leitura é feita no próprio app (`src/services/extrato.py`, PDF via `pypdf`), sem IA e sem enviar o arquivo a terceiros:
+
+- **CSV**: separador `;`, `,` ou tabulação; colunas reconhecidas pelo cabeçalho (`Data`, `Descrição`/`Histórico`, `Valor` ou `Crédito`/`Débito`), em UTF-8 ou Latin-1.
+- **OFX**: o formato "Money/OFX" que quase todo banco exporta.
+- **PDF**: linhas no formato `data · descrição · valor [saldo]`. PDF escaneado (imagem) não tem texto: exporte em CSV ou OFX.
+
+Cada lançamento vira um card com **Descrição** e **Valor** editáveis e o botão **Confirmar** (ou **Descartar**). **Confirmar importação** só libera com todos os cards confirmados e grava tudo de uma vez pelo endpoint `POST /transacoes/lote` (até 500 linhas, tudo ou nada). Valor negativo vira despesa, positivo vira receita; categoria "Outros" e status "Pago".
+
 ## Testes
 
 ```powershell

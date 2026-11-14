@@ -58,6 +58,22 @@ print(f"     -> {len(orc)} orçamentos")
 if orc:
     etapa("alterar limite", lambda: cli.alterar_limite(orc[0]["id"], 500))
 etapa("excluir transação", lambda: cli.excluir_transacao(nova["id"]))
+
+# Importação de extrato: lote válido cria tudo; lote com uma linha inválida não cria nada
+lote = [{"tipo": "despesa", "valor": 45.9, "categoria": "Outros", "descricao": "Lote 1",
+         "data": hoje, "status": "pago"},
+        {"tipo": "receita", "valor": 3000.0, "categoria": "Outros", "descricao": "Lote 2",
+         "data": hoje, "status": "pago"}]
+r = etapa("criar transações em lote", lambda: cli.criar_transacoes_lote(lote))
+assert r.get("criadas") == 2, f"esperava criadas=2, veio {r}"
+invalido = [lote[0], {**lote[1], "valor": 0}]
+etapa("lote com linha inválida é recusado",
+      lambda: _espera_erro(lambda: cli.criar_transacoes_lote(invalido)))
+lista2 = etapa("listar após lotes", cli.listar_transacoes)
+do_lote = [t for t in lista2 if (t.get("descricao") or "").startswith("Lote ")]
+assert len(do_lote) == 2, f"lote inválido gravou linhas: {len(do_lote)} encontradas"
+for t in do_lote:
+    etapa(f"excluir {t['descricao']}", lambda t=t: cli.excluir_transacao(t["id"]))
 print("TUDO OK")
 
 

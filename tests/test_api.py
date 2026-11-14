@@ -96,6 +96,15 @@ def test_crud_transacoes_usa_rotas_do_contrato():
         ("DELETE", "/transacoes/7")]
 
 
+def test_lote_de_transacoes_envia_lista_na_rota_do_contrato():
+    http = HttpFalso(RespostaFalsa(200, {"criadas": 2}))
+    lote = [{"tipo": "despesa", "valor": 45.9}, {"tipo": "receita", "valor": 3000.0}]
+    assert Cliente(BASE, token="t", http=http).criar_transacoes_lote(lote) == {"criadas": 2}
+    chamada = http.chamadas[0]
+    assert (chamada["metodo"], chamada["url"].removeprefix(BASE)) == ("POST", "/transacoes/lote")
+    assert chamada["json"] == {"transacoes": lote}
+
+
 def test_orcamentos_enviam_periodo_e_aceitam_items():
     http = HttpFalso(RespostaFalsa(200, {"items": [{"id": 1}]}), RespostaFalsa(200, {"id": 1}))
     c = Cliente(BASE, token="t", http=http)

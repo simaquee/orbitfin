@@ -77,6 +77,11 @@ html, body, .stApp *:not([data-testid="stIconMaterial"]):not(.fi) {{
 .stApp button[data-testid="stBaseButton-primaryFormSubmit"]:hover {{
   background: var(--terracota-texto-hover); border-color: var(--terracota-texto-hover); color: #fff;
 }}
+.stApp button[data-testid="stBaseButton-primary"]:disabled,
+.stApp button[data-testid="stBaseButton-primary"]:disabled:hover {{
+  background: var(--terracota-texto); border-color: var(--terracota-texto); color: #fff;
+  opacity: .4; box-shadow: none; cursor: not-allowed;
+}}
 .stApp button[data-testid="stBaseButton-secondary"],
 .stApp button[data-testid="stBaseButton-secondaryFormSubmit"] {{
   background: var(--card); color: var(--marinho); border: 1px solid var(--marinho-10);

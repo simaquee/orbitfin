@@ -5,19 +5,21 @@ Spec (OpenSpec): openspec/specs/transacoes/spec.md
 from __future__ import annotations
 
 from datetime import date
+from html import escape
 
 import streamlit as st
 
 from components import dados
 from components.header import cabecalho
-from components.ui import html, kpi, linha_kpis, linha_transacao, titulo_card, vazio
-from services import api
+from components.ui import chip, html, info, kpi, linha_kpis, linha_transacao, titulo_card, vazio
+from services import api, extrato
 from services.calculos import filtrar, ordenar_recentes, totais
 from services.categorias import CATEGORIAS, STATUS, TIPOS
 from services.formatacao import data_br, mes_abrev, moeda, parse_data
 from services.validacao import validar_transacao
 
 TODOS = "Todos"
+IMPORTACAO = "importacao"  # estado da revisão em st.session_state
 
 
 # ------------------------------------------------------------- formulário
@@ -91,6 +93,109 @@ def _dialogo_excluir(tx: dict) -> None:
         st.rerun()
 
 
+# ------------------------------------------------- importação de extrato
+def _abrir_importacao() -> None:
+    st.session_state.setdefault(IMPORTACAO, {"lote": 0, "arquivo": "", "linhas": []})
+
+
+def _fechar_importacao() -> None:
+    st.session_state.pop(IMPORTACAO, None)
+
+
+def _ler_arquivo(imp: dict) -> None:
+    arquivo = st.file_uploader("Arquivo do extrato (PDF, CSV ou OFX)", type=list(extrato.FORMATOS),
+                               key=f"imp_arquivo_{imp['lote']}")
+    if arquivo is not None:
+        try:
+            linhas = extrato.ler_extrato(arquivo.name, arquivo.getvalue())
+        except extrato.ErroExtrato as e:
+            st.error(str(e))
+        else:
+            # Novo número de lote: os widgets dos cards não herdam valores de outro arquivo
+            imp["lote"] += 1
+            imp["arquivo"] = arquivo.name
+            imp["linhas"] = [{**l, "id": i, "confirmado": False} for i, l in enumerate(linhas)]
+            st.rerun()
+    html(info("A leitura acontece aqui no app, sem IA e sem enviar o arquivo a terceiros. "
+              "PDF escaneado (imagem) não tem texto para ler: exporte em CSV ou OFX."))
+    if st.button("Cancelar", key="imp_cancelar_arquivo"):
+        _fechar_importacao()
+        st.rerun()
+
+
+def _card_linha(imp: dict, linha: dict) -> None:
+    k = f"imp_{imp['lote']}_{linha['id']}"
+    confirmado = linha["confirmado"]
+    valor_atual = st.session_state.get(f"{k}_valor", linha["valor"])
+    tipo = "Receita" if valor_atual > 0 else "Despesa"
+    with st.container(border=True, key=f"{k}_linha"):
+        c_info, c_desc, c_valor, c_ok, c_fora = st.columns([1.5, 3.4, 1.6, 1.2, 1.1],
+                                                           vertical_alignment="bottom")
+        selo = chip("Confirmado", "m") if confirmado else chip("Pendente", "t")
+        c_info.markdown(f"**{data_br(linha['data'])}**<br>{tipo}<br>{selo}", unsafe_allow_html=True)
+        descricao = c_desc.text_input("Descrição", value=linha["descricao"], key=f"{k}_desc",
+                                      disabled=confirmado)
+        valor = c_valor.number_input("Valor (R$)", value=float(linha["valor"]), step=0.01,
+                                     format="%.2f", key=f"{k}_valor", disabled=confirmado)
+        if confirmado:
+            if c_ok.button("Editar", key=f"{k}_editar", type="tertiary", width="stretch"):
+                linha["confirmado"] = False
+                st.rerun()
+        elif c_ok.button("Confirmar", key=f"{k}_confirmar", type="primary", width="stretch"):
+            erro = extrato.validar_linha(valor)
+            if erro:
+                st.error(erro)
+            else:
+                linha.update(descricao=descricao.strip(), valor=round(valor, 2), confirmado=True)
+                st.rerun()
+        if c_fora.button("Descartar", key=f"{k}_descartar", type="tertiary", width="stretch"):
+            imp["linhas"].remove(linha)
+            st.rerun()
+
+
+def _revisao(imp: dict) -> None:
+    linhas = imp["linhas"]
+    faltam = extrato.pendentes(linhas)
+    html(f'<div class="of-subtitulo">{escape(imp["arquivo"])} · {len(linhas)} lançamentos · '
+         f'{len(linhas) - faltam} confirmados</div>')
+    for linha in list(linhas):
+        _card_linha(imp, linha)
+
+    if faltam:
+        st.caption(f"Confirme todos os lançamentos para importar "
+                   f"({'faltam' if faltam > 1 else 'falta'} {faltam}).")
+    cancelar, confirmar = st.columns(2)
+    if cancelar.button("Cancelar importação", width="stretch", key="imp_cancelar"):
+        _fechar_importacao()
+        st.rerun()
+    if confirmar.button("Confirmar importação", type="primary", width="stretch",
+                        key="imp_confirmar", disabled=not extrato.pode_importar(linhas)):
+        try:
+            resposta = api.cliente().criar_transacoes_lote(extrato.montar_lote(linhas))
+        except api.ErroApi as e:
+            st.error(str(e))
+            return
+        criadas = int(resposta.get("criadas", len(linhas)))
+        dados.invalidar()
+        _fechar_importacao()
+        st.session_state["aviso_importacao"] = (
+            f"{criadas} transações importadas." if criadas != 1 else "1 transação importada.")
+        st.rerun()
+
+
+def _painel_importacao() -> None:
+    imp = st.session_state.get(IMPORTACAO)
+    if not imp:
+        return
+    with st.container(key="card_importacao"):
+        html(titulo_card("Importar extrato", "PDF, CSV ou OFX"))
+        if imp["linhas"]:
+            _revisao(imp)
+        else:
+            _ler_arquivo(imp)
+    html('<div style="height:.9rem"></div>')
+
+
 # ----------------------------------------------------------------- página
 def _opcoes_mes(txs: list[dict], hoje: date) -> list:
     meses = {(hoje.year, hoje.month)} | {(parse_data(t["data"]).year, parse_data(t["data"]).month)
@@ -104,8 +209,13 @@ def render() -> None:
     with acao:
         if st.button("Adicionar transação", type="primary", width="stretch"):
             _dialogo_nova()
+        if st.button("Importar extrato", width="stretch", key="abrir_importacao"):
+            _abrir_importacao()
     if st.session_state.pop("abrir_nova_transacao", False):
         _dialogo_nova()
+    if aviso := st.session_state.pop("aviso_importacao", None):
+        st.success(aviso)
+    _painel_importacao()
 
     try:
         txs = dados.transacoes()
