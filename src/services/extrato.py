@@ -295,6 +295,18 @@ def pendentes(linhas: list[dict]) -> int:
     return sum(1 for l in linhas if not l.get("confirmado"))
 
 
+def confirmar_todas(linhas: list[dict], atuais: dict[int, tuple[str, float]]) -> int:
+    """'Confirmar tudo': confirma cada card pendente com os valores atuais dos campos
+    (id -> (descrição, valor)). Card com valor zero continua pendente. Devolve quantos sobraram."""
+    for linha in linhas:
+        if linha.get("confirmado"):
+            continue
+        descricao, valor = atuais.get(linha["id"], (linha["descricao"], linha["valor"]))
+        if validar_linha(valor) is None:
+            linha.update(descricao=(descricao or "").strip(), valor=round(valor, 2), confirmado=True)
+    return pendentes(linhas)
+
+
 def pode_importar(linhas: list[dict]) -> bool:
     return bool(linhas) and pendentes(linhas) == 0
 

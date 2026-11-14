@@ -6,7 +6,7 @@ import pytest
 
 from services.extrato import (
     MSG_CSV_COLUNAS, MSG_FORMATO, MSG_LIMITE, MSG_PDF_IMAGEM, MSG_PDF_INVALIDO, MSG_VALOR_ZERO,
-    MSG_VAZIO, ErroExtrato, ler_extrato, montar_lote, parse_data_extrato, parse_valor, pendentes,
+    MSG_VAZIO, ErroExtrato, confirmar_todas, ler_extrato, montar_lote, parse_data_extrato, parse_valor, pendentes,
     pode_importar, validar_linha,
 )
 from tests.fakes import pdf_com_linhas
@@ -180,6 +180,19 @@ def test_card_pendente_bloqueia_importacao():
     assert not pode_importar(linhas)
     assert pode_importar([{"confirmado": True}] * 12)
     assert not pode_importar([])
+
+
+def test_confirmar_tudo_usa_valores_atuais_e_mantem_valor_zero_pendente():
+    linhas = [{"id": 0, "descricao": "Mercado", "valor": -45.9, "confirmado": False},
+              {"id": 1, "descricao": "PIX", "valor": -150.0, "confirmado": False},
+              {"id": 2, "descricao": "Salário", "valor": 3000.0, "confirmado": True}]
+    atuais = {0: (" Aluguel garagem ", -150.0), 1: ("PIX", 0.0), 2: ("Salário", 3000.0)}
+    assert confirmar_todas(linhas, atuais) == 1
+    assert linhas[0] == {"id": 0, "descricao": "Aluguel garagem", "valor": -150.0, "confirmado": True}
+    assert linhas[1]["confirmado"] is False
+    atuais[1] = ("PIX", -150.0)
+    assert confirmar_todas(linhas, atuais) == 0
+    assert pode_importar(linhas)
 
 
 @pytest.mark.parametrize("valor, erro", [(0, MSG_VALOR_ZERO), (0.001, MSG_VALOR_ZERO),

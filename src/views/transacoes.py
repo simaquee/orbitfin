@@ -156,8 +156,21 @@ def _card_linha(imp: dict, linha: dict) -> None:
 def _revisao(imp: dict) -> None:
     linhas = imp["linhas"]
     faltam = extrato.pendentes(linhas)
-    html(f'<div class="of-subtitulo">{escape(imp["arquivo"])} · {len(linhas)} lançamentos · '
-         f'{len(linhas) - faltam} confirmados</div>')
+    resumo, tudo = st.columns([4, 1], vertical_alignment="center")
+    with resumo:
+        html(f'<div class="of-subtitulo">{escape(imp["arquivo"])} · {len(linhas)} lançamentos · '
+             f'{len(linhas) - faltam} confirmados</div>')
+    if tudo.button("Confirmar tudo", key="imp_confirmar_tudo", width="stretch", disabled=not faltam):
+        atuais = {}
+        for linha in linhas:
+            k = f"imp_{imp['lote']}_{linha['id']}"
+            atuais[linha["id"]] = (st.session_state.get(f"{k}_desc", linha["descricao"]),
+                                   st.session_state.get(f"{k}_valor", linha["valor"]))
+        if extrato.confirmar_todas(linhas, atuais):
+            st.session_state["aviso_confirmar_tudo"] = True
+        st.rerun()
+    if st.session_state.pop("aviso_confirmar_tudo", False):
+        st.warning(f"{extrato.MSG_VALOR_ZERO} Corrija os cards que continuam pendentes.")
     for linha in list(linhas):
         _card_linha(imp, linha)
 
